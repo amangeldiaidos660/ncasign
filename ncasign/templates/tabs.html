@@ -1,0 +1,328 @@
+{% load static %}
+<style>
+    .admin-container {
+        min-height: 100vh;
+        padding: 2rem;
+    }
+    .admin-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        /* backdrop-filter: blur(10px); */ /* Убираем, чтобы не затемняло модалку */
+        max-width: 100%;
+        margin: 0 auto;
+        z-index: 2 !important;
+        position: relative;
+    }
+    .content-wrapper { z-index: 1 !important; position: relative; }
+    .nav-tabs {
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 2rem;
+    }
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 10px 10px 0 0;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+    .nav-tabs .nav-link:hover {
+        border: none;
+        color: #667eea;
+        text-decoration: none;
+    }
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        color: white;
+    }
+    .btn-cancel {
+        background: #6c757d;
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-cancel:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+    .btn-edit {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+    }
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+    }
+    .table {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    .table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 1rem;
+    }
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .role-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .role-1 { background: #dc3545; color: white; }
+    .role-2 { background: #28a745; color: white; }
+    .role-3 { background: #ffc107; color: #212529; }
+    .role-4 { background: #6c757d; color: white; }
+    .user-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    .user-info h4 {
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+    .notif-badge {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background: #dc3545;
+        color: #fff;
+        border-radius: 50%;
+        font-size: 0.8rem;
+        min-width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        z-index: 2;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .tab-badge {
+        background: #dc3545;
+        color: #fff;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        padding: 2px 8px;
+        margin-left: 6px;
+        font-weight: bold;
+        vertical-align: middle;
+    }
+    /* Фикс для модального окна поверх всего */
+    .modal-backdrop { z-index: 2000 !important; }
+    .modal { z-index: 2100 !important; }
+</style>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <a href="/" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-home me-1"></i>На главную
+        </a>
+        <button type="button" class="btn btn-outline-primary position-relative" id="notifBtn">
+            <i class="fas fa-bell"></i>
+            <span id="notifBadge" class="notif-badge" style="display:none;">0</span>
+        </button>
+    </div>
+</div>
+<ul class="nav nav-tabs" id="adminTabs" role="tablist">
+    {% if request.user.role == 1 or request.user.role == 5 %}
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {% if request.resolver_match.url_name == 'gph_list' %}active{% endif %}" href="{% url 'documents:gph_list' %}">
+            <i class="fas fa-file-contract me-2"></i>Создать ГПХ
+        </a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {% if request.resolver_match.url_name == 'acts_list' %}active{% endif %}" href="{% url 'documents:acts_list' %}">
+            <i class="fas fa-file-alt me-2"></i>Акты
+        </a>
+    </li>
+    {% endif %}
+    <li class="nav-item" role="presentation">
+        <a id="tabProfile" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+            <i class="fas fa-user me-2"></i>Профиль
+        </a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'history' %}">
+            <i class="fas fa-history me-2"></i>История
+            <span id="tabHistoryBadge" class="tab-badge" style="display:none;">0</span>
+        </a>
+    </li>
+    {% if request.user.role == 1 or request.user.role == 5 or request.user.role == 2 %}
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {% if request.resolver_match.url_name == 'admin_panel' %}active{% endif %}" href="{% url 'admin_panel' %}">
+            <i class="fas fa-users me-2"></i>Пользователи
+        </a>
+    </li>
+    {% endif %}
+    {% if request.user.role == 1 %}
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {% if request.resolver_match.url_name == 'create_user' %}active{% endif %}" href="{% url 'create_user' %}">
+            <i class="fas fa-user-plus me-2"></i>Создать пользователя
+        </a>
+    </li>
+    {% endif %}
+</ul>
+<!-- Модальное окно уведомлений -->
+<div class="modal fade" id="notifModal" tabindex="-1" aria-labelledby="notifModalLabel" aria-hidden="true" data-bs-backdrop="false" data-bs-keyboard="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notifModalLabel">Уведомления</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="notifList">
+        <div class="alert alert-info mb-0">Пока уведомлений нет.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function updateNotifBadges(count) {
+    var badge = document.getElementById('notifBadge');
+    var tabBadge = document.getElementById('tabHistoryBadge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = '';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    if (tabBadge) {
+        if (count > 0) {
+            tabBadge.textContent = count;
+            tabBadge.style.display = '';
+        } else {
+            tabBadge.style.display = 'none';
+        }
+    }
+}
+function handleNotifGoTo(doc_id) {
+    var notifModalEl = document.getElementById('notifModal');
+    var notifModal = bootstrap.Modal.getInstance(notifModalEl) || new bootstrap.Modal(notifModalEl);
+    notifModal.hide();
+    window.location.href = '/history/?doc_id=' + encodeURIComponent(doc_id);
+}
+function loadNotifications(showModal) {
+    fetch('/documents/api/pending-approvals/', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        var notifList = document.getElementById('notifList');
+        var count = 0;
+        if (data.success && Array.isArray(data.pending)) {
+            count = data.pending.length;
+            updateNotifBadges(count);
+            if (notifList) {
+                if (count === 0) {
+                    notifList.innerHTML = '<div class="alert alert-info mb-0">Пока уведомлений нет.</div>';
+                } else {
+                    notifList.innerHTML = '';
+                    data.pending.forEach(function(doc) {
+                        var item = document.createElement('div');
+                        item.className = 'alert alert-warning d-flex justify-content-between align-items-center mb-2';
+                        item.innerHTML = '<span>Документ <b>№' + doc.doc_id + '</b> требует согласования</span>' +
+                            '<button class="btn btn-sm btn-primary ms-3" onclick="handleNotifGoTo(\'' + doc.doc_id + '\')">Перейти</button>';
+                        notifList.appendChild(item);
+                    });
+                }
+            }
+        } else {
+            updateNotifBadges(0);
+            if (notifList) notifList.innerHTML = '<div class="alert alert-danger mb-0">Ошибка загрузки уведомлений</div>';
+        }
+        if (showModal) {
+            var notifModal = new bootstrap.Modal(document.getElementById('notifModal'));
+            notifModal.show();
+        }
+    })
+    .catch(function() {
+        updateNotifBadges(0);
+        var notifList = document.getElementById('notifList');
+        if (notifList) notifList.innerHTML = '<div class="alert alert-danger mb-0">Ошибка загрузки уведомлений</div>';
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация бейджей при загрузке
+    loadNotifications(false);
+    // Колокольчик
+    var notifBtn = document.getElementById('notifBtn');
+    if (notifBtn) {
+        notifBtn.addEventListener('click', function() {
+            loadNotifications(true);
+        });
+    }
+    // Проверяем, есть ли активный таб
+    let activeTab = document.querySelector('.nav-tabs .nav-link.active');
+    if (!activeTab) {
+        // Если нет активного таба, активируем Профиль
+        let profileTab = document.getElementById('tabProfile');
+        if (profileTab) {
+            profileTab.classList.add('active');
+            // Если используется tab-content, показать соответствующую панель
+            let tabContent = document.getElementById('adminTabsContent');
+            if (tabContent) {
+                let panes = tabContent.querySelectorAll('.tab-pane');
+                panes.forEach(pane => pane.classList.remove('show', 'active'));
+                let profilePane = tabContent.querySelector('#profile');
+                if (profilePane) {
+                    profilePane.classList.add('show', 'active');
+                }
+            }
+        }
+    }
+});
+</script> 

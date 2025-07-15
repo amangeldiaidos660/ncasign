@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}ncasign - Автоматизация документооборота{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+        animation: fadeInUp 1s ease-out;
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2.5rem;
+        animation: fadeInUp 1s ease-out 0.3s both;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: var(--text-light);
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        animation: fadeInUp 1s ease-out 0.6s both;
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        color: var(--text-light);
+    }
+
+    .section {
+        padding: 80px 0;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 3rem;
+        color: var(--text-dark);
+    }
+
+    .process-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+    }
+
+    .process-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .process-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 2rem;
+    }
+
+    .advantage-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .advantage-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+    }
+
+    .advantage-icon {
+        font-size: 3rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .footer {
+        background: var(--text-dark);
+        color: var(--text-light);
+        padding: 2rem 0;
+    }
+
+    .logo {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-light);
+    }
+
+    .slogan {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .floating {
+        animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <h1 class="hero-title">Автоматизация документооборота</h1>
+                    <p class="hero-subtitle">Создание, согласование и подписание документов в единой системе</p>
+                    <a href="{% url 'auth' %}" class="btn btn-primary-custom">
+                        <i class="fas fa-sign-in-alt me-2"></i>Войти в систему
+                    </a>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="floating">
+                        <svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:rgba(255,255,255,0.2);stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="80" y="60" width="240" height="280" rx="8" fill="url(#iconGradient)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                            <rect x="100" y="80" width="200" height="20" rx="4" fill="rgba(255,255,255,0.2)"/>
+                            <rect x="100" y="120" width="160" height="12" rx="2" fill="rgba(255,255,255,0.15)"/>
+                            <rect x="100" y="140" width="140" height="12" rx="2" fill="rgba(255,255,255,0.15)"/>
+                            <rect x="100" y="160" width="180" height="12" rx="2" fill="rgba(255,255,255,0.15)"/>
+                            <rect x="100" y="200" width="120" height="12" rx="2" fill="rgba(255,255,255,0.15)"/>
+                            <rect x="100" y="220" width="150" height="12" rx="2" fill="rgba(255,255,255,0.15)"/>
+                            <rect x="100" y="240" width="130" height="12" rx="2" fill="rgba(255,255,255,0.15)"/>
+                            <circle cx="320" cy="100" r="20" fill="rgba(255,255,255,0.3)"/>
+                            <path d="M315 100 L318 103 L325 96" stroke="rgba(255,255,255,0.8)" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="section bg-light">
+        <div class="container">
+            <h2 class="section-title">Как это работает</h2>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="process-card">
+                        <div class="process-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h4 class="text-center mb-3">Создание документа</h4>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Автоматическая генерация договоров и актов</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Заполнение данных сотрудника</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Выбор шаблона документа</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="process-card">
+                        <div class="process-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4 class="text-center mb-3">Согласование</h4>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Многоэтапное согласование документов</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Уведомления участникам процесса</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Отслеживание статуса в реальном времени</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="process-card">
+                        <div class="process-icon">
+                            <i class="fas fa-signature"></i>
+                        </div>
+                        <h4 class="text-center mb-3">Подписание</h4>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Электронная подпись документов</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Автоматическая отправка на email</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Архивирование в системе</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advantages Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Преимущества</h2>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="advantage-card">
+                        <div class="advantage-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h5>Автоматизация</h5>
+                        <p>Полная автоматизация процессов</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="advantage-card">
+                        <div class="advantage-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h5>Безопасность</h5>
+                        <p>Защищенное хранение и передача</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="advantage-card">
+                        <div class="advantage-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <h5>Скорость</h5>
+                        <p>Сокращение времени обработки</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="advantage-card">
+                        <div class="advantage-icon">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                        <h5>Удобство</h5>
+                        <p>Интуитивный интерфейс</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="logo">ncasign</div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="slogan">Платформа автоматизации документооборота</div>
+                </div>
+            </div>
+        </div>
+    </footer>
+{% endblock %} 

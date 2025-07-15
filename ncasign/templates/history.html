@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}История{% endblock %}
+{% block content %}
+<div class="admin-container">
+    <div class="admin-card">
+        {% include 'tabs.html' %}
+        <h2>Ваша история участия в ГПХ-документах</h2>
+        <div id="historyTableWrapper">
+            <div class="alert alert-info mt-4">Загрузка...</div>
+        </div>
+    </div>
+</div>
+<script>
+function renderHistoryTable(docs) {
+    var wrapper = document.getElementById('historyTableWrapper');
+    if (!docs || docs.length === 0) {
+        wrapper.innerHTML = '<div class="alert alert-success mt-4">Нет документов с вашим участием.</div>';
+        return;
+    }
+    var html = '<div class="table-responsive"><table class="table table-bordered table-hover">';
+    html += '<thead><tr>' +
+        '<th>ID</th>' +
+        '<th>Дата создания</th>' +
+        '<th>ФИО исполнителя</th>' +
+        '<th>Файл</th>' +
+        '<th>Ваша роль</th>' +
+        '<th>Ваш статус</th>' +
+        '</tr></thead><tbody>';
+    docs.forEach(function(doc) {
+        html += '<tr>' +
+            '<td>' + doc.doc_id + '</td>' +
+            '<td>' + doc.created_at + '</td>' +
+            '<td>' + doc.full_name + '</td>' +
+            '<td>' + (doc.file_path ? '<a href="' + doc.file_path + '" target="_blank" class="btn btn-sm btn-outline-primary">Открыть</a>' : '<span class="text-muted">—</span>') + '</td>' +
+            '<td>' + (doc.status === 'исполнитель' ? 'Исполнитель' : 'Согласующий') + '</td>' +
+            '<td>' + (doc.status === 'исполнитель' ? '<span class="badge bg-info">исполнитель</span>' :
+                (doc.status === 'согласовано' ? '<span class="badge bg-success">согласовано</span>' :
+                (doc.status === 'отклонено' ? '<span class="badge bg-danger">отклонено</span>' :
+                '<span class="badge bg-secondary">ожидание</span>'))) + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrapper.innerHTML = html;
+}
+function loadHistoryDocs() {
+    var wrapper = document.getElementById('historyTableWrapper');
+    wrapper.innerHTML = '<div class="alert alert-info mt-4">Загрузка...</div>';
+    fetch('/documents/api/user-history/', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success && Array.isArray(data.history)) {
+            renderHistoryTable(data.history);
+        } else {
+            wrapper.innerHTML = '<div class="alert alert-danger mt-4">Ошибка загрузки данных</div>';
+        }
+    })
+    .catch(function() {
+        wrapper.innerHTML = '<div class="alert alert-danger mt-4">Ошибка загрузки данных</div>';
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    loadHistoryDocs();
+});
+</script>
+{% endblock %} 

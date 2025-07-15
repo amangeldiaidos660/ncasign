@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{% block documents_title %}Документы - ncasign{% endblock %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        min-height: 100vh;
+        padding: 2rem;
+    }
+
+    .admin-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+    }
+
+    .nav-tabs {
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 2rem;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 10px 10px 0 0;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+    .nav-tabs .nav-link:hover {
+        border: none;
+        color: #667eea;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-card">
+        {% include 'tabs.html' %}
+        <div class="tab-content" id="adminTabsContent">
+            {% block documents_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

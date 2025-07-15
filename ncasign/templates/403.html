@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Доступ запрещён{% endblock %}
+{% block content %}
+<div class="admin-container">
+    <div class="admin-card text-center">
+        <div style="font-size: 5rem; color: #dc3545;">
+            <i class="fas fa-ban"></i>
+        </div>
+        <h1 class="mt-3 mb-2">Доступ запрещён</h1>
+        <p class="lead mb-4">У вас нет прав для просмотра этой страницы или выполнения этого действия.</p>
+        <a href="/" class="btn btn-primary"><i class="fas fa-home me-2"></i>На главную</a>
+    </div>
+</div>
+{% endblock %} 

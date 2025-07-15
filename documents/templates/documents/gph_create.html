@@ -1,0 +1,369 @@
+{% extends 'documents/base_documents.html' %}
+
+{% block documents_title %}Создание ГПХ договора - ncasign{% endblock %}
+{% block page_title %}Создание ГПХ договора{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .editor-container {
+        display: flex;
+        gap: 2rem;
+        height: calc(100vh - 200px);
+    }
+    
+    .form-section {
+        flex: 0 0 400px;
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        overflow-y: auto;
+    }
+    
+    .preview-section {
+        flex: 1;
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        overflow-y: auto;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .preview-placeholder {
+        text-align: center;
+        color: #666;
+        padding: 3rem;
+        border: 2px dashed #ddd;
+        border-radius: 10px;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        color: white;
+    }
+    
+    /* Стили для поиска в select */
+    .search-container {
+        position: relative;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .search-input:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        outline: 0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/loader.js"></script>
+{% endblock %}
+
+{% block documents_content %}
+<div class="editor-container">
+    <!-- Форма -->
+    <div class="form-section">
+        <h4 class="mb-4">Заполните данные договора</h4>
+        
+        <form method="post" id="gphForm">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    Пожалуйста, исправьте ошибки в форме
+                </div>
+            {% endif %}
+            
+            <div class="form-group">
+                <label class="form-label">Согласующие</label>
+                <div id="approvers-list"></div>
+                <button type="button" class="btn btn-outline-primary btn-sm mb-2" id="add-approver-btn">
+                    <i class="fas fa-plus me-1"></i>Добавить согласующего
+                </button>
+                {{ form.approvers }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ form.executor.label }}</label>
+                {{ form.executor }}
+                {% if form.executor.errors %}
+                    <div class="text-danger small">{{ form.executor.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ form.start_date.label }}</label>
+                {{ form.start_date }}
+                {% if form.start_date.errors %}
+                    <div class="text-danger small">{{ form.start_date.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ form.end_date.label }}</label>
+                {{ form.end_date }}
+                {% if form.end_date.errors %}
+                    <div class="text-danger small">{{ form.end_date.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="d-flex gap-2 mt-4">
+                <button type="button" class="btn btn-save" id="saveContract">
+                    <i class="fas fa-save me-2"></i>Сохранить договор
+                </button>
+                <a href="{% url 'documents:gph_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Предпросмотр документа -->
+    <div class="preview-section">
+        <h4 class="mb-4">Предпросмотр документа</h4>
+        <div id="preview-content">
+            <div class="preview-placeholder">
+                <i class="fas fa-file-word fa-3x mb-3 text-muted"></i>
+                <p>Здесь будет отображаться предпросмотр документа с заполненными данными</p>
+                <small class="text-muted">Документ будет обновляться в реальном времени при заполнении формы</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// JavaScript для обновления предпросмотра в реальном времени
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('gphForm');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    const previewContent = document.getElementById('preview-content');
+    
+    // Автоматическое заполнение ФИО при выборе исполнителя
+    const executorSelect = document.getElementById('id_executor');
+    const fullNameInput = document.getElementById('id_full_name');
+    
+    if (executorSelect && fullNameInput) {
+        executorSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                // Извлекаем только ФИО из строки "ФИО (username)"
+                const fullText = selectedOption.text;
+                const fullName = fullText.split(' (')[0]; // Берем часть до скобки
+                fullNameInput.value = fullName;
+                // Запускаем обновление предпросмотра
+                updatePreview();
+            }
+        });
+    }
+    
+    // Функция для обновления предпросмотра
+    function updatePreview() {
+        const formData = new FormData(form);
+        
+        fetch('{% url "documents:gph_preview" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            console.log('Статус ответа:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Данные ответа:', data);
+            if (data.success) {
+                previewContent.innerHTML = data.preview_html;
+            } else {
+                console.error('Ошибка обновления предпросмотра:', data.error);
+                previewContent.innerHTML = `<div class="alert alert-danger">Ошибка: ${data.error}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка запроса:', error);
+            previewContent.innerHTML = `<div class="alert alert-danger">Ошибка сети: ${error.message}</div>`;
+        });
+    }
+    
+    // Обновляем предпросмотр при изменении любого поля
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            updatePreview();
+        });
+        
+        input.addEventListener('change', function() {
+            updatePreview();
+        });
+        
+        input.addEventListener('blur', function() {
+            updatePreview();
+        });
+    });
+    
+    // Обновляем предпросмотр при загрузке страницы
+    setTimeout(updatePreview, 100);
+    
+    const saveBtn = document.getElementById('saveContract');
+    function validateForm() {
+        let valid = true;
+        // Проверка исполнителя
+        if (!executorSelect.value) valid = false;
+        // Проверка дат
+        const startDate = document.getElementById('id_start_date').value;
+        const endDate = document.getElementById('id_end_date').value;
+        if (!startDate || !endDate) valid = false;
+        // Проверка согласующих
+        if (!selectedApprovers.length) valid = false;
+        saveBtn.disabled = !valid;
+        return valid;
+    }
+    // --- Согласующие ---
+    const approversSelect = document.getElementById('id_approvers');
+    const approversListDiv = document.getElementById('approvers-list');
+    const addApproverBtn = document.getElementById('add-approver-btn');
+    // Получаем список всех согласующих из select
+    let allApprovers = [];
+    if (approversSelect) {
+        allApprovers = Array.from(approversSelect.options).map(opt => ({
+            username: opt.value,
+            full_name: opt.text
+        }));
+        // Скрываем сам select
+        approversSelect.style.display = 'none';
+    }
+    let selectedApprovers = [];
+    function renderApproversList() {
+        approversListDiv.innerHTML = '';
+        selectedApprovers.forEach((appr, idx) => {
+            const el = document.createElement('div');
+            el.className = 'd-flex align-items-center mb-1';
+            el.innerHTML = `<span class="me-2">${appr.full_name} <span class='text-muted'>(${appr.username})</span></span>` +
+                `<button type='button' class='btn btn-sm btn-danger ms-2' data-idx='${idx}'>Удалить</button>`;
+            approversListDiv.appendChild(el);
+        });
+        // Синхронизируем select
+        if (approversSelect) {
+            Array.from(approversSelect.options).forEach(opt => {
+                opt.selected = selectedApprovers.some(appr => appr.username === opt.value);
+            });
+        }
+        updatePreview();
+        validateForm();
+    }
+    if (addApproverBtn) {
+        addApproverBtn.addEventListener('click', function() {
+            // Показываем выпадающий список для выбора
+            const select = document.createElement('select');
+            select.className = 'form-select form-select-sm d-inline-block w-auto me-2';
+            select.innerHTML = '<option value="">Выберите согласующего</option>' +
+                allApprovers
+                    .filter(appr => !selectedApprovers.some(sel => sel.username === appr.username))
+                    .map(appr => `<option value="${appr.username}">${appr.full_name} (${appr.username})</option>`)
+                    .join('');
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'btn btn-success btn-sm';
+            addBtn.textContent = 'Добавить';
+            addBtn.onclick = function() {
+                const val = select.value;
+                if (val && !selectedApprovers.some(appr => appr.username === val)) {
+                    const found = allApprovers.find(appr => appr.username === val);
+                    if (found) {
+                        selectedApprovers.push(found);
+                        renderApproversList();
+                        select.remove();
+                        addBtn.remove();
+                    }
+                }
+            };
+            approversListDiv.appendChild(select);
+            approversListDiv.appendChild(addBtn);
+        });
+    }
+    approversListDiv.addEventListener('click', function(e) {
+        if (e.target.matches('button[data-idx]')) {
+            const idx = parseInt(e.target.getAttribute('data-idx'));
+            selectedApprovers.splice(idx, 1);
+            renderApproversList();
+        }
+    });
+    // При отправке формы синхронизируем select
+    form.addEventListener('submit', function() {
+        if (approversSelect) {
+            Array.from(approversSelect.options).forEach(opt => {
+                opt.selected = selectedApprovers.some(appr => appr.username === opt.value);
+            });
+        }
+    });
+    // При загрузке страницы
+    renderApproversList();
+    
+    // Проверять при изменении любого поля
+    inputs.forEach(input => {
+        input.addEventListener('input', validateForm);
+        input.addEventListener('change', validateForm);
+        input.addEventListener('blur', validateForm);
+    });
+    
+    // Проверить при загрузке
+    setTimeout(validateForm, 200);
+    // Обработка сохранения договора
+    saveBtn.addEventListener('click', function() {
+        if (!validateForm()) return;
+        const formData = new FormData(form);
+        showLoader();
+        fetch('{% url "documents:gph_save" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (data.success) {
+                window.location.href = '{% url "documents:gph_list" %}';
+            } else {
+                alert(`Ошибка сохранения: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            hideLoader();
+            console.error('Ошибка запроса:', error);
+            alert('Ошибка сети при сохранении');
+        });
+    });
+});
+</script>
+{% endblock %} 

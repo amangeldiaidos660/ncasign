@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+<div class="admin-container">
+    <div class="admin-card">
+        {% include 'tabs.html' %}
+        <h2>Профиль пользователя</h2>
+        <div class="card p-4 mt-4">
+            <p><strong>ФИО:</strong> {{ user.full_name }}</p>
+            <p><strong>Должность:</strong> {{ user.position }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Роль:</strong> {{ user.get_role_display }}</p>
+            <p><strong>Логин (username):</strong> {{ user.username }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование пользователя - ncasign{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-card">
+        {% include 'tabs.html' %}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">Редактирование пользователя</h1>
+            <a href="{% url 'admin_panel' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Назад
+            </a>
+        </div>
+        <div class="user-info">
+            <h4>Информация о пользователе</h4>
+            <p><strong>ID:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    Пожалуйста, исправьте ошибки в форме
+                </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">ФИО</label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                        <div class="text-danger small">{{ form.full_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Должность</label>
+                    {{ form.position }}
+                    {% if form.position.errors %}
+                        <div class="text-danger small">{{ form.position.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Роль</label>
+                    {{ form.role }}
+                    {% if form.role.errors %}
+                        <div class="text-danger small">{{ form.role.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-save me-2"></i>Сохранить изменения
+                </button>
+                <a href="{% url 'admin_panel' %}" class="btn btn-cancel">
+                    <i class="fas fa-times me-2"></i>Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,408 @@
+[
+  {
+    "username": "testuser1",
+    "full_name": "Иванов Иван Иванович",
+    "position": "Разработчик",
+    "role": 2,
+    "email": "testuser1@gmail.com"
+  },
+  {
+    "username": "testuser2", 
+    "full_name": "Петров Петр Петрович",
+    "position": "Дизайнер",
+    "role": 3,
+    "email": "testuser2@gmail.com"
+  },
+  {
+    "username": "testuser3",
+    "full_name": "Сидоров Сидор Сидорович", 
+    "position": "Менеджер",
+    "role": 4,
+    "email": "testuser3@gmail.com"
+  },
+  {
+    "username": "testuser4",
+    "full_name": "Козлов Козел Козлович",
+    "position": "Аналитик", 
+    "role": 5,
+    "email": "testuser4@gmail.com"
+  },
+  {
+    "username": "testuser5",
+    "full_name": "Волков Волк Волкович",
+    "position": "Тестировщик",
+    "role": 2, 
+    "email": "testuser5@gmail.com"
+  },
+  {
+    "username": "testuser6",
+    "full_name": "Медведев Медведь Медведевич",
+    "position": "Архитектор",
+    "role": 3,
+    "email": "testuser6@gmail.com"
+  },
+  {
+    "username": "testuser7", 
+    "full_name": "Лисицын Лис Лисицынович",
+    "position": "Программист",
+    "role": 4,
+    "email": "testuser7@gmail.com"
+  },
+  {
+    "username": "testuser8",
+    "full_name": "Зайцев Заяц Зайцевич",
+    "position": "Консультант",
+    "role": 5,
+    "email": "testuser8@gmail.com"
+  },
+  {
+    "username": "testuser9",
+    "full_name": "Белов Бел Белович",
+    "position": "Координатор",
+    "role": 2,
+    "email": "testuser9@gmail.com"
+  },
+  {
+    "username": "testuser10",
+    "full_name": "Чернов Черн Чернович", 
+    "position": "Специалист",
+    "role": 3,
+    "email": "testuser10@gmail.com"
+  },
+  {
+    "username": "testuser11",
+    "full_name": "Краснов Красн Краснович",
+    "position": "Инженер",
+    "role": 4,
+    "email": "testuser11@gmail.com"
+  },
+  {
+    "username": "testuser12",
+    "full_name": "Желтов Желт Желтович",
+    "position": "Эксперт",
+    "role": 5,
+    "email": "testuser12@gmail.com"
+  },
+  {
+    "username": "testuser13",
+    "full_name": "Синенко Синь Синенкович",
+    "position": "Консультант",
+    "role": 2,
+    "email": "testuser13@gmail.com"
+  },
+  {
+    "username": "testuser14",
+    "full_name": "Оранжев Оранж Оранжевич",
+    "position": "Менеджер",
+    "role": 3,
+    "email": "testuser14@gmail.com"
+  },
+  {
+    "username": "testuser15",
+    "full_name": "Фиолетов Фиолет Фиолетович",
+    "position": "Аналитик",
+    "role": 4,
+    "email": "testuser15@gmail.com"
+  },
+  {
+    "username": "testuser16",
+    "full_name": "Розов Роз Розович",
+    "position": "Разработчик",
+    "role": 5,
+    "email": "testuser16@gmail.com"
+  },
+  {
+    "username": "testuser17",
+    "full_name": "Серый Сер Серович",
+    "position": "Дизайнер",
+    "role": 2,
+    "email": "testuser17@gmail.com"
+  },
+  {
+    "username": "testuser18",
+    "full_name": "Браун Браун Браунович",
+    "position": "Тестировщик",
+    "role": 3,
+    "email": "testuser18@gmail.com"
+  },
+  {
+    "username": "testuser19",
+    "full_name": "Грин Грин Гринович",
+    "position": "Архитектор",
+    "role": 4,
+    "email": "testuser19@gmail.com"
+  },
+  {
+    "username": "testuser20",
+    "full_name": "Блю Блю Блюевич",
+    "position": "Программист",
+    "role": 5,
+    "email": "testuser20@gmail.com"
+  },
+  {
+    "username": "testuser21",
+    "full_name": "Уайт Уайт Уайтович",
+    "position": "Консультант",
+    "role": 2,
+    "email": "testuser21@gmail.com"
+  },
+  {
+    "username": "testuser22",
+    "full_name": "Блэк Блэк Блэкович",
+    "position": "Координатор",
+    "role": 3,
+    "email": "testuser22@gmail.com"
+  },
+  {
+    "username": "testuser23",
+    "full_name": "Йеллоу Йеллоу Йеллоувич",
+    "position": "Специалист",
+    "role": 4,
+    "email": "testuser23@gmail.com"
+  },
+  {
+    "username": "testuser24",
+    "full_name": "Пинк Пинк Пинкович",
+    "position": "Инженер",
+    "role": 5,
+    "email": "testuser24@gmail.com"
+  },
+  {
+    "username": "testuser25",
+    "full_name": "Голд Голд Голдович",
+    "position": "Эксперт",
+    "role": 2,
+    "email": "testuser25@gmail.com"
+  },
+  {
+    "username": "testuser26",
+    "full_name": "Силвер Силвер Силверович",
+    "position": "Консультант",
+    "role": 3,
+    "email": "testuser26@gmail.com"
+  },
+  {
+    "username": "testuser27",
+    "full_name": "Бронз Бронз Бронзович",
+    "position": "Менеджер",
+    "role": 4,
+    "email": "testuser27@gmail.com"
+  },
+  {
+    "username": "testuser28",
+    "full_name": "Коппер Коппер Копперович",
+    "position": "Аналитик",
+    "role": 5,
+    "email": "testuser28@gmail.com"
+  },
+  {
+    "username": "testuser29",
+    "full_name": "Алмаз Алмаз Алмазович",
+    "position": "Разработчик",
+    "role": 2,
+    "email": "testuser29@gmail.com"
+  },
+  {
+    "username": "testuser30",
+    "full_name": "Рубин Рубин Рубинович",
+    "position": "Дизайнер",
+    "role": 3,
+    "email": "testuser30@gmail.com"
+  },
+  {
+    "username": "testuser31",
+    "full_name": "Сапфир Сапфир Сапфирович",
+    "position": "Тестировщик",
+    "role": 4,
+    "email": "testuser31@gmail.com"
+  },
+  {
+    "username": "testuser32",
+    "full_name": "Изумруд Изумруд Изумрудович",
+    "position": "Архитектор",
+    "role": 5,
+    "email": "testuser32@gmail.com"
+  },
+  {
+    "username": "testuser33",
+    "full_name": "Топаз Топаз Топазович",
+    "position": "Программист",
+    "role": 2,
+    "email": "testuser33@gmail.com"
+  },
+  {
+    "username": "testuser34",
+    "full_name": "Агат Агат Агатович",
+    "position": "Консультант",
+    "role": 3,
+    "email": "testuser34@gmail.com"
+  },
+  {
+    "username": "testuser35",
+    "full_name": "Оникс Оникс Ониксович",
+    "position": "Координатор",
+    "role": 4,
+    "email": "testuser35@gmail.com"
+  },
+  {
+    "username": "testuser36",
+    "full_name": "Янтарь Янтарь Янтаревич",
+    "position": "Специалист",
+    "role": 5,
+    "email": "testuser36@gmail.com"
+  },
+  {
+    "username": "testuser37",
+    "full_name": "Жемчуг Жемчуг Жемчугович",
+    "position": "Инженер",
+    "role": 2,
+    "email": "testuser37@gmail.com"
+  },
+  {
+    "username": "testuser38",
+    "full_name": "Коралл Коралл Кораллович",
+    "position": "Эксперт",
+    "role": 3,
+    "email": "testuser38@gmail.com"
+  },
+  {
+    "username": "testuser39",
+    "full_name": "Малахит Малахит Малахитович",
+    "position": "Консультант",
+    "role": 4,
+    "email": "testuser39@gmail.com"
+  },
+  {
+    "username": "testuser40",
+    "full_name": "Лазурит Лазурит Лазуритович",
+    "position": "Менеджер",
+    "role": 5,
+    "email": "testuser40@gmail.com"
+  },
+  {
+    "username": "testuser41",
+    "full_name": "Гранит Гранит Гранитович",
+    "position": "Аналитик",
+    "role": 2,
+    "email": "testuser41@gmail.com"
+  },
+  {
+    "username": "testuser42",
+    "full_name": "Мрамор Мрамор Мраморович",
+    "position": "Разработчик",
+    "role": 3,
+    "email": "testuser42@gmail.com"
+  },
+  {
+    "username": "testuser43",
+    "full_name": "Базальт Базальт Базальтович",
+    "position": "Дизайнер",
+    "role": 4,
+    "email": "testuser43@gmail.com"
+  },
+  {
+    "username": "testuser44",
+    "full_name": "Песчаник Песчаник Песчаникович",
+    "position": "Тестировщик",
+    "role": 5,
+    "email": "testuser44@gmail.com"
+  },
+  {
+    "username": "testuser45",
+    "full_name": "Известняк Известняк Известнякович",
+    "position": "Архитектор",
+    "role": 2,
+    "email": "testuser45@gmail.com"
+  },
+  {
+    "username": "testuser46",
+    "full_name": "Глина Глина Глинович",
+    "position": "Программист",
+    "role": 3,
+    "email": "testuser46@gmail.com"
+  },
+  {
+    "username": "testuser47",
+    "full_name": "Песок Песок Песокович",
+    "position": "Консультант",
+    "role": 4,
+    "email": "testuser47@gmail.com"
+  },
+  {
+    "username": "testuser48",
+    "full_name": "Галька Галька Галькович",
+    "position": "Координатор",
+    "role": 5,
+    "email": "testuser48@gmail.com"
+  },
+  {
+    "username": "testuser49",
+    "full_name": "Щебень Щебень Щебневич",
+    "position": "Специалист",
+    "role": 2,
+    "email": "testuser49@gmail.com"
+  },
+  {
+    "username": "testuser50",
+    "full_name": "Булыжник Булыжник Булыжникович",
+    "position": "Инженер",
+    "role": 3,
+    "email": "testuser50@gmail.com"
+  },
+  {
+    "username": "testuser51",
+    "full_name": "Валун Валун Валунович",
+    "position": "Эксперт",
+    "role": 4,
+    "email": "testuser51@gmail.com"
+  },
+  {
+    "username": "testuser52",
+    "full_name": "Камни Камни Камневич",
+    "position": "Консультант",
+    "role": 5,
+    "email": "testuser52@gmail.com"
+  },
+  {
+    "username": "testuser53",
+    "full_name": "Скала Скала Скалович",
+    "position": "Менеджер",
+    "role": 2,
+    "email": "testuser53@gmail.com"
+  },
+  {
+    "username": "testuser54",
+    "full_name": "Утес Утес Утесович",
+    "position": "Аналитик",
+    "role": 3,
+    "email": "testuser54@gmail.com"
+  },
+  {
+    "username": "testuser55",
+    "full_name": "Гора Гора Горевич",
+    "position": "Разработчик",
+    "role": 4,
+    "email": "testuser55@gmail.com"
+  },
+  {
+    "username": "testuser56",
+    "full_name": "Холм Холм Холмович",
+    "position": "Дизайнер",
+    "role": 5,
+    "email": "testuser56@gmail.com"
+  },
+  {
+    "username": "testuser57",
+    "full_name": "Курган Курган Курганович",
+    "position": "Тестировщик",
+    "role": 2,
+    "email": "testuser57@gmail.com"
+  },
+  {
+    "username": "testuser58",
+    "full_name": "Бугор Бугор Бугорович",
+    "position": "Архитектор",
+    "role": 3,
+    "email": "testuser58@gmail.com"
+  }
+]
