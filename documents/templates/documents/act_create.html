@@ -152,9 +152,31 @@
                 {{ form.unit_price }}
             </div>
             
-            <button type="button" class="btn btn-download" id="saveAct">
-                    <i class="fas fa-save me-2"></i>Сохранить акт
+            <!-- Информация о пакете -->
+            <div class="form-group" id="package-info" style="display: none;">
+                <div class="alert alert-info">
+                    <i class="fas fa-box me-2"></i>
+                    <strong>Пакет актов:</strong> <span id="package-count">0</span> актов
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="clearPackage">
+                        <i class="fas fa-trash me-1"></i>Очистить пакет
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Кнопки действий -->
+            <div class="form-group">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-download flex-fill" id="saveAct">
+                        <i class="fas fa-save me-2"></i>Сохранить акт
+                    </button>
+                    <button type="button" class="btn btn-primary flex-fill" id="addToPackage">
+                        <i class="fas fa-plus me-2"></i>Добавить в пакет
+                    </button>
+                </div>
+                <button type="button" class="btn btn-success w-100 mt-2" id="savePackage" style="display: none;">
+                    <i class="fas fa-box me-2"></i>Сохранить пакет
                 </button>
+            </div>
         </form>
     </div>
     
@@ -174,6 +196,7 @@
 const usersData = JSON.parse('{{ users_data_json|escapejs }}');
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM загружен, инициализируем элементы...');
     const form = document.getElementById('actForm');
     const inputs = form.querySelectorAll('input, select, textarea');
     const previewContent = document.getElementById('preview-content');
@@ -181,6 +204,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const fullNameInput = document.getElementById('full-name-input');
     const phoneInput = document.getElementById('phone-input');
     const iinInput = document.getElementById('iin-input');
+    
+    // Проверяем наличие элементов пакета
+    const packageElements = {
+        packageInfo: document.getElementById('package-info'),
+        packageCount: document.getElementById('package-count'),
+        saveAct: document.getElementById('saveAct'),
+        addToPackage: document.getElementById('addToPackage'),
+        savePackage: document.getElementById('savePackage'),
+        clearPackage: document.getElementById('clearPackage')
+    };
+    
+    console.log('Проверка элементов пакета:', packageElements);
 
     const quantityInput = document.getElementById('quantity-input');
     const unitPriceInput = document.getElementById('unit-price-input');
@@ -379,15 +414,170 @@ document.addEventListener('DOMContentLoaded', function() {
     // Загружаем начальный предпросмотр
     loadInitialPreview();
     
-    // Обработка сохранения
-    document.getElementById('saveAct').addEventListener('click', function() {
-        // Собираем данные из формы
+    // --- Функции для работы с пакетами ---
+    
+    // Загрузка информации о пакете при старте
+    function loadPackageInfo() {
+        console.log('Отправляем запрос на получение информации о пакете...');
+        fetch('/documents/acts/package-info/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Получен ответ:', data);
+            if (data.success) {
+                console.log('Обновляем UI с количеством актов:', data.package_count);
+                updatePackageUI(data.package_count);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки информации о пакете:', error);
+        });
+    }
+    
+    // Обновление UI пакета
+    function updatePackageUI(packageCount) {
+        console.log('Обновляем UI пакета с количеством:', packageCount);
+        const packageInfo = document.getElementById('package-info');
+        const packageCountSpan = document.getElementById('package-count');
+        const saveActBtn = document.getElementById('saveAct');
+        const addToPackageBtn = document.getElementById('addToPackage');
+        const savePackageBtn = document.getElementById('savePackage');
+        
+        console.log('Найденные элементы:', {
+            packageInfo: !!packageInfo,
+            packageCountSpan: !!packageCountSpan,
+            saveActBtn: !!saveActBtn,
+            addToPackageBtn: !!addToPackageBtn,
+            savePackageBtn: !!savePackageBtn
+        });
+        
+        // Всегда показываем кнопки "Сохранить акт" и "Добавить в пакет"
+        saveActBtn.style.display = 'inline-block';
+        addToPackageBtn.style.display = 'inline-block';
+        
+        if (packageCount > 0) {
+            console.log('Показываем элементы пакета');
+            packageInfo.style.display = 'block';
+            packageCountSpan.textContent = packageCount;
+            savePackageBtn.style.display = 'inline-block';
+        } else {
+            console.log('Скрываем элементы пакета');
+            packageInfo.style.display = 'none';
+            savePackageBtn.style.display = 'none';
+        }
+    }
+    
+    // Обработка добавления акта в пакет
+    document.getElementById('addToPackage').addEventListener('click', function() {
         const formData = new FormData(document.getElementById('actForm'));
         
-        // Показываем загрузчик
         showLoader();
         
-        // Отправляем данные на сервер для сохранения
+        fetch('/documents/acts/add-to-package/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (data.success) {
+                alert(data.message);
+                updatePackageUI(data.package_count);
+                // Очищаем форму для следующего акта
+                document.getElementById('actForm').reset();
+                selectedApprovers = [];
+                renderApproversList();
+                loadInitialPreview();
+            } else {
+                alert(`Ошибка: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            hideLoader();
+            console.error('Ошибка запроса:', error);
+            alert('Ошибка сети при добавлении в пакет');
+        });
+    });
+    
+    // Обработка сохранения пакета
+    document.getElementById('savePackage').addEventListener('click', function() {
+        if (!confirm('Сохранить пакет актов? Это действие нельзя отменить.')) {
+            return;
+        }
+        
+        showLoader();
+        
+        fetch('/documents/acts/save-package/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (data.success) {
+                alert(data.message);
+                updatePackageUI(0);
+                window.location.href = '{% url "documents:act_list" %}';
+            } else {
+                alert(`Ошибка: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            hideLoader();
+            console.error('Ошибка запроса:', error);
+            alert('Ошибка сети при сохранении пакета');
+        });
+    });
+    
+    // Обработка очистки пакета
+    document.getElementById('clearPackage').addEventListener('click', function() {
+        if (!confirm('Очистить пакет? Все добавленные акты будут удалены.')) {
+            return;
+        }
+        
+        showLoader();
+        
+        fetch('/documents/acts/clear-package/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (data.success) {
+                alert(data.message);
+                updatePackageUI(0);
+            } else {
+                alert(`Ошибка: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            hideLoader();
+            console.error('Ошибка запроса:', error);
+            alert('Ошибка сети при очистке пакета');
+        });
+    });
+    
+    // Обработка сохранения одиночного акта
+    document.getElementById('saveAct').addEventListener('click', function() {
+        const formData = new FormData(document.getElementById('actForm'));
+        
+        showLoader();
+        
         fetch('{% url "documents:act_save" %}', {
             method: 'POST',
             body: formData,
@@ -412,6 +602,10 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Ошибка сети при сохранении');
         });
     });
+    
+    // Загружаем информацию о пакете при старте
+    console.log('Загружаем информацию о пакете...');
+    loadPackageInfo();
 });
 </script>
 {% endblock %} 

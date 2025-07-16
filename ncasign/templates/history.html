@@ -4,6 +4,7 @@
 <div class="admin-container">
     <div class="admin-card">
         {% include 'tabs.html' %}
+        <form style="display:none;">{% csrf_token %}</form>
         <h2>Ваша история участия в ГПХ-документах</h2>
         <div id="historyTableWrapper">
             <div class="alert alert-info mt-4">Загрузка...</div>
@@ -11,9 +12,45 @@
     </div>
 </div>
 <script>
-function renderHistoryTable(docs) {
+function renderActionsCell(actions, docType, docId, actId) {
+    if (!actions || !Array.isArray(actions)) return '';
+    var html = '<ul class="mb-0 ps-3">';
+    actions.forEach(function(a) {
+        let badge = 'bg-secondary';
+        if (a.status === 'согласовано' || a.status === 'подписано') badge = 'bg-success';
+        if (a.status === 'отклонено') badge = 'bg-danger';
+        if (a.status === 'ожидание') badge = 'bg-warning text-dark';
+        let role = a.role === 'approver' ? 'Согласующий' : (a.role === 'signer' ? 'Подписант' : (a.role === 'executor' ? 'Исполнитель' : a.role));
+        html += '<li>' + role + ' <b>' + (a.full_name || a.username) + '</b> — ' +
+            '<span class="badge ' + badge + '">' + a.status + '</span>';
+        // Кнопки для согласующего, подписанта и исполнителя с ожиданием (только для текущего пользователя)
+        if ((a.status === 'ожидание') && a.username === window.currentUser) {
+            let btnText = a.role === 'approver' ? 'Согласовать' : 'Подписать';
+            html += ' <button class="btn btn-sm btn-success ms-2" onclick="approveAction(\'' + docType + '\', \'' + (docId || actId) + '\', true)">' + btnText + '</button>';
+            html += ' <button class="btn btn-sm btn-danger ms-1" onclick="approveAction(\'' + docType + '\', \'' + (docId || actId) + '\', false)">Отклонить</button>';
+        }
+        html += '</li>';
+    });
+    html += '</ul>';
+    return html;
+}
+
+// Получаем username текущего пользователя (можно передать через шаблон)
+window.currentUser = '{{ request.user.username }}';
+
+function getMyRole(actions) {
+    if (!actions || !Array.isArray(actions)) return '';
+    let me = actions.find(a => a.username === window.currentUser);
+    if (!me) return '';
+    if (me.role === 'approver') return 'Согласующий';
+    if (me.role === 'signer') return 'Подписант';
+    if (me.role === 'executor') return 'Исполнитель';
+    return me.role;
+}
+
+function renderHistoryTable(data) {
     var wrapper = document.getElementById('historyTableWrapper');
-    if (!docs || docs.length === 0) {
+    if (!data || (!data.gph && !data.acts && !data.packages)) {
         wrapper.innerHTML = '<div class="alert alert-success mt-4">Нет документов с вашим участием.</div>';
         return;
     }
@@ -23,25 +60,135 @@ function renderHistoryTable(docs) {
         '<th>Дата создания</th>' +
         '<th>ФИО исполнителя</th>' +
         '<th>Файл</th>' +
-        '<th>Ваша роль</th>' +
-        '<th>Ваш статус</th>' +
+        '<th>Статусы участников</th>' +
         '</tr></thead><tbody>';
-    docs.forEach(function(doc) {
-        html += '<tr>' +
-            '<td>' + doc.doc_id + '</td>' +
-            '<td>' + doc.created_at + '</td>' +
-            '<td>' + doc.full_name + '</td>' +
-            '<td>' + (doc.file_path ? '<a href="' + doc.file_path + '" target="_blank" class="btn btn-sm btn-outline-primary">Открыть</a>' : '<span class="text-muted">—</span>') + '</td>' +
-            '<td>' + (doc.status === 'исполнитель' ? 'Исполнитель' : 'Согласующий') + '</td>' +
-            '<td>' + (doc.status === 'исполнитель' ? '<span class="badge bg-info">исполнитель</span>' :
-                (doc.status === 'согласовано' ? '<span class="badge bg-success">согласовано</span>' :
-                (doc.status === 'отклонено' ? '<span class="badge bg-danger">отклонено</span>' :
-                '<span class="badge bg-secondary">ожидание</span>'))) + '</td>' +
-        '</tr>';
-    });
+    // ГПХ
+    if (data.gph && data.gph.length > 0) {
+        data.gph.forEach(function(doc) {
+            html += '<tr>' +
+                '<td>' + doc.doc_id + '</td>' +
+                '<td>' + doc.created_at + '</td>' +
+                '<td>' + doc.full_name + '</td>' +
+                '<td>' + (doc.file_path ? '<a href="' + doc.file_path + '" target="_blank" class="btn btn-sm btn-outline-primary">Открыть</a>' : '<span class="text-muted">—</span>') + '</td>' +
+                '<td>' + renderActionsCell(doc.actions, 'gph', doc.doc_id, null) + '</td>' +
+            '</tr>';
+        });
+    }
+    // Одиночные акты
+    if (data.acts && data.acts.length > 0) {
+        data.acts.forEach(function(act) {
+            html += '<tr>' +
+                '<td>' + act.act_id + '</td>' +
+                '<td>' + act.created_at + '</td>' +
+                '<td>' + act.full_name + '</td>' +
+                '<td>' + (act.file_path ? '<a href="' + act.file_path + '" target="_blank" class="btn btn-sm btn-outline-primary">Открыть</a>' : '<span class="text-muted">—</span>') + '</td>' +
+                '<td>' + renderActionsCell(act.actions, 'act', null, act.act_id) + '</td>' +
+            '</tr>';
+        });
+    }
+    // Пакеты
+    if (data.packages && data.packages.length > 0) {
+        data.packages.forEach(function(pkg) {
+            // Проверяем, есть ли у пользователя хотя бы один акт в пакете со статусом ожидание и нужной ролью
+            let canApprove = false, canSign = false;
+            if (pkg.acts && pkg.acts.length > 0) {
+                pkg.acts.forEach(function(act) {
+                    if (act.actions && Array.isArray(act.actions)) {
+                        act.actions.forEach(function(a) {
+                            if (a.username === window.currentUser && a.status === 'ожидание') {
+                                if (a.role === 'approver') canApprove = true;
+                                if (a.role === 'signer') canSign = true;
+                            }
+                        });
+                    }
+                });
+            }
+            html += '<tr class="table-primary"><td colspan="5">'
+                + '<b>Пакет актов: ' + pkg.package_id + '</b> | Статус: <span class="badge bg-info">' + pkg.status + '</span> | Дата создания: ' + pkg.created_at;
+            if (canApprove) {
+                html += ' <button class="btn btn-success btn-sm ms-2" onclick="approvePackageAction(\'' + pkg.package_id + '\', true)">Согласовать пакет</button>';
+                html += ' <button class="btn btn-danger btn-sm ms-1" onclick="approvePackageAction(\'' + pkg.package_id + '\', false)">Отклонить пакет</button>';
+            }
+            if (canSign) {
+                html += ' <button class="btn btn-success btn-sm ms-2" onclick="approvePackageAction(\'' + pkg.package_id + '\', true)">Подписать пакет</button>';
+                html += ' <button class="btn btn-danger btn-sm ms-1" onclick="approvePackageAction(\'' + pkg.package_id + '\', false)">Отклонить пакет</button>';
+            }
+            html += '</td></tr>';
+            if (pkg.acts && pkg.acts.length > 0) {
+                pkg.acts.forEach(function(act, idx) {
+                    html += '<tr class="table-light">' +
+                        '<td>' + act.act_id + '</td>' +
+                        '<td>' + act.created_at + '</td>' +
+                        '<td>' + act.full_name + '</td>' +
+                        '<td>' + (act.file_path ? '<a href="' + act.file_path + '" target="_blank" class="btn btn-sm btn-outline-primary">Открыть</a>' : '<span class="text-muted">—</span>') + '</td>' +
+                        '<td>' + renderActionsCell(act.actions, 'act', null, act.act_id) + '</td>' +
+                    '</tr>';
+                });
+            }
+        });
+    }
     html += '</tbody></table></div>';
     wrapper.innerHTML = html;
 }
+
+// Заглушка для согласования/отклонения (реализация backend ниже)
+function approveAction(docType, docId, isApprove) {
+    if (!confirm(isApprove ? 'Согласовать документ?' : 'Отклонить документ?')) return;
+    fetch('/documents/api/approve-action/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            doc_type: docType,
+            doc_id: docId,
+            is_approve: isApprove
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Статус обновлён!');
+            loadHistoryDocs();
+        } else {
+            alert('Ошибка: ' + data.error);
+        }
+    })
+    .catch(function() {
+        alert('Ошибка сети');
+    });
+}
+
+function approvePackageAction(packageId, isApprove) {
+    if (!confirm(isApprove ? 'Подтвердить действие для всего пакета?' : 'Отклонить весь пакет?')) return;
+    fetch('/documents/api/approve-package/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            package_id: packageId,
+            is_approve: isApprove
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Статус пакета обновлён!');
+            loadHistoryDocs();
+        } else {
+            alert('Ошибка: ' + data.error);
+        }
+    })
+    .catch(function() {
+        alert('Ошибка сети');
+    });
+}
+
 function loadHistoryDocs() {
     var wrapper = document.getElementById('historyTableWrapper');
     wrapper.innerHTML = '<div class="alert alert-info mt-4">Загрузка...</div>';
@@ -50,8 +197,8 @@ function loadHistoryDocs() {
     })
     .then(r => r.json())
     .then(data => {
-        if (data.success && Array.isArray(data.history)) {
-            renderHistoryTable(data.history);
+        if (data.success) {
+            renderHistoryTable(data);
         } else {
             wrapper.innerHTML = '<div class="alert alert-danger mt-4">Ошибка загрузки данных</div>';
         }
