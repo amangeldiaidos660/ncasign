@@ -56,6 +56,14 @@
                     {% endif %}
                 </div>
             </div>
+            <div class="mb-3">
+                <label for="id_iin" class="form-label">ИИН</label>
+                {{ form.iin }}
+            </div>
+            <div class="mb-3">
+                <label for="id_phone_number" class="form-label">Телефон</label>
+                {{ form.phone_number }}
+            </div>
             <div class="d-flex gap-3">
                 <button type="submit" class="btn btn-submit">
                     <i class="fas fa-save me-2"></i>Сохранить изменения

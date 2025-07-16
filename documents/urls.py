@@ -8,8 +8,9 @@ urlpatterns = [
     path('gph/create/', views.gph_create, name='gph_create'),
     path('gph/preview/', views.gph_preview, name='gph_preview'),
     path('gph/save/', views.gph_save, name='gph_save'),
-    path('acts/', views.acts_list, name='acts_list'),
-    path('api/pending-approvals/', views.api_pending_approvals, name='api_pending_approvals'),
-    path('api/approve-document/', views.api_approve_document, name='api_approve_document'),
-    path('api/user-history/', views.api_user_history, name='api_user_history'),
+    path('acts/', views.act_list, name='act_list'),
+    path('acts/create/', views.act_create, name='act_create'),
+    path('acts/preview/', views.act_preview, name='act_preview'),
+    path('acts/download/', views.act_download, name='act_download'),
+    path('acts/save/', views.act_save, name='act_save'),
 ] 

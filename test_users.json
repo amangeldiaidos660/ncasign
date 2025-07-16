@@ -1,405 +1,463 @@
 [
   {
-    "username": "testuser1",
+    "iin": "900101200001",
+    "phone_number": "+77070000001",
     "full_name": "Иванов Иван Иванович",
     "position": "Разработчик",
     "role": 2,
     "email": "testuser1@gmail.com"
   },
   {
-    "username": "testuser2", 
+    "iin": "900101200002",
+    "phone_number": "+77070000002",
     "full_name": "Петров Петр Петрович",
     "position": "Дизайнер",
     "role": 3,
     "email": "testuser2@gmail.com"
   },
   {
-    "username": "testuser3",
+    "iin": "900101200003",
+    "phone_number": "+77070000003",
     "full_name": "Сидоров Сидор Сидорович", 
     "position": "Менеджер",
     "role": 4,
     "email": "testuser3@gmail.com"
   },
   {
-    "username": "testuser4",
+    "iin": "900101200004",
+    "phone_number": "+77070000004",
     "full_name": "Козлов Козел Козлович",
     "position": "Аналитик", 
     "role": 5,
     "email": "testuser4@gmail.com"
   },
   {
-    "username": "testuser5",
+    "iin": "900101200005",
+    "phone_number": "+77070000005",
     "full_name": "Волков Волк Волкович",
     "position": "Тестировщик",
     "role": 2, 
     "email": "testuser5@gmail.com"
   },
   {
-    "username": "testuser6",
+    "iin": "900101200006",
+    "phone_number": "+77070000006",
     "full_name": "Медведев Медведь Медведевич",
     "position": "Архитектор",
     "role": 3,
     "email": "testuser6@gmail.com"
   },
   {
-    "username": "testuser7", 
+    "iin": "900101200007", 
+    "phone_number": "+77070000007",
     "full_name": "Лисицын Лис Лисицынович",
     "position": "Программист",
     "role": 4,
     "email": "testuser7@gmail.com"
   },
   {
-    "username": "testuser8",
+    "iin": "900101200008",
+    "phone_number": "+77070000008",
     "full_name": "Зайцев Заяц Зайцевич",
     "position": "Консультант",
     "role": 5,
     "email": "testuser8@gmail.com"
   },
   {
-    "username": "testuser9",
+    "iin": "900101200009",
+    "phone_number": "+77070000009",
     "full_name": "Белов Бел Белович",
     "position": "Координатор",
     "role": 2,
     "email": "testuser9@gmail.com"
   },
   {
-    "username": "testuser10",
-    "full_name": "Чернов Черн Чернович", 
+    "iin": "900101200010",
+    "phone_number": "+77070000010", 
+    "full_name": "Чернов Черн Чернович",
     "position": "Специалист",
     "role": 3,
     "email": "testuser10@gmail.com"
   },
   {
-    "username": "testuser11",
+    "iin": "900101200011",
+    "phone_number": "+77070000011",
     "full_name": "Краснов Красн Краснович",
     "position": "Инженер",
     "role": 4,
     "email": "testuser11@gmail.com"
   },
   {
-    "username": "testuser12",
+    "iin": "900101200012",
+    "phone_number": "+77070000012",
     "full_name": "Желтов Желт Желтович",
     "position": "Эксперт",
     "role": 5,
     "email": "testuser12@gmail.com"
   },
   {
-    "username": "testuser13",
+    "iin": "900101200013",
+    "phone_number": "+77070000013",
     "full_name": "Синенко Синь Синенкович",
     "position": "Консультант",
     "role": 2,
     "email": "testuser13@gmail.com"
   },
   {
-    "username": "testuser14",
+    "iin": "900101200014",
+    "phone_number": "+77070000014",
     "full_name": "Оранжев Оранж Оранжевич",
     "position": "Менеджер",
     "role": 3,
     "email": "testuser14@gmail.com"
   },
   {
-    "username": "testuser15",
+    "iin": "900101200015",
+    "phone_number": "+77070000015",
     "full_name": "Фиолетов Фиолет Фиолетович",
     "position": "Аналитик",
     "role": 4,
     "email": "testuser15@gmail.com"
   },
   {
-    "username": "testuser16",
+    "iin": "900101200016",
+    "phone_number": "+77070000016",
     "full_name": "Розов Роз Розович",
     "position": "Разработчик",
     "role": 5,
     "email": "testuser16@gmail.com"
   },
   {
-    "username": "testuser17",
+    "iin": "900101200017",
+    "phone_number": "+77070000017",
     "full_name": "Серый Сер Серович",
     "position": "Дизайнер",
     "role": 2,
     "email": "testuser17@gmail.com"
   },
   {
-    "username": "testuser18",
+    "iin": "900101200018",
+    "phone_number": "+77070000018",
     "full_name": "Браун Браун Браунович",
     "position": "Тестировщик",
     "role": 3,
     "email": "testuser18@gmail.com"
   },
   {
-    "username": "testuser19",
+    "iin": "900101200019",
+    "phone_number": "+77070000019",
     "full_name": "Грин Грин Гринович",
     "position": "Архитектор",
     "role": 4,
     "email": "testuser19@gmail.com"
   },
   {
-    "username": "testuser20",
+    "iin": "900101200020",
+    "phone_number": "+77070000020",
     "full_name": "Блю Блю Блюевич",
     "position": "Программист",
     "role": 5,
     "email": "testuser20@gmail.com"
   },
   {
-    "username": "testuser21",
+    "iin": "900101200021",
+    "phone_number": "+77070000021",
     "full_name": "Уайт Уайт Уайтович",
     "position": "Консультант",
     "role": 2,
     "email": "testuser21@gmail.com"
   },
   {
-    "username": "testuser22",
+    "iin": "900101200022",
+    "phone_number": "+77070000022",
     "full_name": "Блэк Блэк Блэкович",
     "position": "Координатор",
     "role": 3,
     "email": "testuser22@gmail.com"
   },
   {
-    "username": "testuser23",
+    "iin": "900101200023",
+    "phone_number": "+77070000023",
     "full_name": "Йеллоу Йеллоу Йеллоувич",
     "position": "Специалист",
     "role": 4,
     "email": "testuser23@gmail.com"
   },
   {
-    "username": "testuser24",
+    "iin": "900101200024",
+    "phone_number": "+77070000024",
     "full_name": "Пинк Пинк Пинкович",
     "position": "Инженер",
     "role": 5,
     "email": "testuser24@gmail.com"
   },
   {
-    "username": "testuser25",
+    "iin": "900101200025",
+    "phone_number": "+77070000025",
     "full_name": "Голд Голд Голдович",
     "position": "Эксперт",
     "role": 2,
     "email": "testuser25@gmail.com"
   },
   {
-    "username": "testuser26",
+    "iin": "900101200026",
+    "phone_number": "+77070000026",
     "full_name": "Силвер Силвер Силверович",
     "position": "Консультант",
     "role": 3,
     "email": "testuser26@gmail.com"
   },
   {
-    "username": "testuser27",
+    "iin": "900101200027",
+    "phone_number": "+77070000027",
     "full_name": "Бронз Бронз Бронзович",
     "position": "Менеджер",
     "role": 4,
     "email": "testuser27@gmail.com"
   },
   {
-    "username": "testuser28",
+    "iin": "900101200028",
+    "phone_number": "+77070000028",
     "full_name": "Коппер Коппер Копперович",
     "position": "Аналитик",
     "role": 5,
     "email": "testuser28@gmail.com"
   },
   {
-    "username": "testuser29",
+    "iin": "900101200029",
+    "phone_number": "+77070000029",
     "full_name": "Алмаз Алмаз Алмазович",
     "position": "Разработчик",
     "role": 2,
     "email": "testuser29@gmail.com"
   },
   {
-    "username": "testuser30",
+    "iin": "900101200030",
+    "phone_number": "+77070000030",
     "full_name": "Рубин Рубин Рубинович",
     "position": "Дизайнер",
     "role": 3,
     "email": "testuser30@gmail.com"
   },
   {
-    "username": "testuser31",
+    "iin": "900101200031",
+    "phone_number": "+77070000031",
     "full_name": "Сапфир Сапфир Сапфирович",
     "position": "Тестировщик",
     "role": 4,
     "email": "testuser31@gmail.com"
   },
   {
-    "username": "testuser32",
+    "iin": "900101200032",
+    "phone_number": "+77070000032",
     "full_name": "Изумруд Изумруд Изумрудович",
     "position": "Архитектор",
     "role": 5,
     "email": "testuser32@gmail.com"
   },
   {
-    "username": "testuser33",
+    "iin": "900101200033",
+    "phone_number": "+77070000033",
     "full_name": "Топаз Топаз Топазович",
     "position": "Программист",
     "role": 2,
     "email": "testuser33@gmail.com"
   },
   {
-    "username": "testuser34",
+    "iin": "900101200034",
+    "phone_number": "+77070000034",
     "full_name": "Агат Агат Агатович",
     "position": "Консультант",
     "role": 3,
     "email": "testuser34@gmail.com"
   },
   {
-    "username": "testuser35",
+    "iin": "900101200035",
+    "phone_number": "+77070000035",
     "full_name": "Оникс Оникс Ониксович",
     "position": "Координатор",
     "role": 4,
     "email": "testuser35@gmail.com"
   },
   {
-    "username": "testuser36",
+    "iin": "900101200036",
+    "phone_number": "+77070000036",
     "full_name": "Янтарь Янтарь Янтаревич",
     "position": "Специалист",
     "role": 5,
     "email": "testuser36@gmail.com"
   },
   {
-    "username": "testuser37",
+    "iin": "900101200037",
+    "phone_number": "+77070000037",
     "full_name": "Жемчуг Жемчуг Жемчугович",
     "position": "Инженер",
     "role": 2,
     "email": "testuser37@gmail.com"
   },
   {
-    "username": "testuser38",
+    "iin": "900101200038",
+    "phone_number": "+77070000038",
     "full_name": "Коралл Коралл Кораллович",
     "position": "Эксперт",
     "role": 3,
     "email": "testuser38@gmail.com"
   },
   {
-    "username": "testuser39",
+    "iin": "900101200039",
+    "phone_number": "+77070000039",
     "full_name": "Малахит Малахит Малахитович",
     "position": "Консультант",
     "role": 4,
     "email": "testuser39@gmail.com"
   },
   {
-    "username": "testuser40",
+    "iin": "900101200040",
+    "phone_number": "+77070000040",
     "full_name": "Лазурит Лазурит Лазуритович",
     "position": "Менеджер",
     "role": 5,
     "email": "testuser40@gmail.com"
   },
   {
-    "username": "testuser41",
+    "iin": "900101200041",
+    "phone_number": "+77070000041",
     "full_name": "Гранит Гранит Гранитович",
     "position": "Аналитик",
     "role": 2,
     "email": "testuser41@gmail.com"
   },
   {
-    "username": "testuser42",
+    "iin": "900101200042",
+    "phone_number": "+77070000042",
     "full_name": "Мрамор Мрамор Мраморович",
     "position": "Разработчик",
     "role": 3,
     "email": "testuser42@gmail.com"
   },
   {
-    "username": "testuser43",
+    "iin": "900101200043",
+    "phone_number": "+77070000043",
     "full_name": "Базальт Базальт Базальтович",
     "position": "Дизайнер",
     "role": 4,
     "email": "testuser43@gmail.com"
   },
   {
-    "username": "testuser44",
+    "iin": "900101200044",
+    "phone_number": "+77070000044",
     "full_name": "Песчаник Песчаник Песчаникович",
     "position": "Тестировщик",
     "role": 5,
     "email": "testuser44@gmail.com"
   },
   {
-    "username": "testuser45",
+    "iin": "900101200045",
+    "phone_number": "+77070000045",
     "full_name": "Известняк Известняк Известнякович",
     "position": "Архитектор",
     "role": 2,
     "email": "testuser45@gmail.com"
   },
   {
-    "username": "testuser46",
+    "iin": "900101200046",
+    "phone_number": "+77070000046",
     "full_name": "Глина Глина Глинович",
     "position": "Программист",
     "role": 3,
     "email": "testuser46@gmail.com"
   },
   {
-    "username": "testuser47",
+    "iin": "900101200047",
+    "phone_number": "+77070000047",
     "full_name": "Песок Песок Песокович",
     "position": "Консультант",
     "role": 4,
     "email": "testuser47@gmail.com"
   },
   {
-    "username": "testuser48",
+    "iin": "900101200048",
+    "phone_number": "+77070000048",
     "full_name": "Галька Галька Галькович",
     "position": "Координатор",
     "role": 5,
     "email": "testuser48@gmail.com"
   },
   {
-    "username": "testuser49",
+    "iin": "900101200049",
+    "phone_number": "+77070000049",
     "full_name": "Щебень Щебень Щебневич",
     "position": "Специалист",
     "role": 2,
     "email": "testuser49@gmail.com"
   },
   {
-    "username": "testuser50",
+    "iin": "900101200050",
+    "phone_number": "+77070000050",
     "full_name": "Булыжник Булыжник Булыжникович",
     "position": "Инженер",
     "role": 3,
     "email": "testuser50@gmail.com"
   },
   {
-    "username": "testuser51",
+    "iin": "900101200051",
+    "phone_number": "+77070000051",
     "full_name": "Валун Валун Валунович",
     "position": "Эксперт",
     "role": 4,
     "email": "testuser51@gmail.com"
   },
   {
-    "username": "testuser52",
+    "iin": "900101200052",
+    "phone_number": "+77070000052",
     "full_name": "Камни Камни Камневич",
     "position": "Консультант",
     "role": 5,
     "email": "testuser52@gmail.com"
   },
   {
-    "username": "testuser53",
+    "iin": "900101200053",
+    "phone_number": "+77070000053",
     "full_name": "Скала Скала Скалович",
     "position": "Менеджер",
     "role": 2,
     "email": "testuser53@gmail.com"
   },
   {
-    "username": "testuser54",
+    "iin": "900101200054",
+    "phone_number": "+77070000054",
     "full_name": "Утес Утес Утесович",
     "position": "Аналитик",
     "role": 3,
     "email": "testuser54@gmail.com"
   },
   {
-    "username": "testuser55",
+    "iin": "900101200055",
+    "phone_number": "+77070000055",
     "full_name": "Гора Гора Горевич",
     "position": "Разработчик",
     "role": 4,
     "email": "testuser55@gmail.com"
   },
   {
-    "username": "testuser56",
+    "iin": "900101200056",
+    "phone_number": "+77070000056",
     "full_name": "Холм Холм Холмович",
     "position": "Дизайнер",
     "role": 5,
     "email": "testuser56@gmail.com"
   },
   {
-    "username": "testuser57",
+    "iin": "900101200057",
+    "phone_number": "+77070000057",
     "full_name": "Курган Курган Курганович",
     "position": "Тестировщик",
     "role": 2,
     "email": "testuser57@gmail.com"
   },
   {
-    "username": "testuser58",
+    "iin": "900101200058",
+    "phone_number": "+77070000058",
     "full_name": "Бугор Бугор Бугорович",
     "position": "Архитектор",
     "role": 3,

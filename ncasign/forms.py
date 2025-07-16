@@ -66,10 +66,25 @@ class CustomUserCreationForm(forms.ModelForm):
             'placeholder': 'Email'
         })
     )
+    iin = forms.CharField(
+        max_length=12,
+        min_length=12,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'ИИН (12 цифр)'
+        })
+    )
+    phone_number = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Телефон'
+        })
+    )
 
     class Meta:
         model = User
-        fields = ('full_name', 'position', 'role', 'email')
+        fields = ('full_name', 'position', 'role', 'email', 'iin', 'phone_number')
     
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -121,7 +136,22 @@ class UserEditForm(forms.ModelForm):
             'placeholder': 'Email'
         })
     )
+    iin = forms.CharField(
+        max_length=12,
+        min_length=12,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'ИИН (12 цифр)'
+        })
+    )
+    phone_number = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Телефон'
+        })
+    )
 
     class Meta:
         model = User
-        fields = ('full_name', 'position', 'role', 'email') 
+        fields = ('full_name', 'position', 'role', 'email', 'iin', 'phone_number') 

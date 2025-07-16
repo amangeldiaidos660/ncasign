@@ -16,6 +16,8 @@ class User(AbstractUser):
     position = models.CharField(max_length=100, verbose_name='Должность')
     role = models.IntegerField(choices=ROLE_CHOICES, default=4, verbose_name='Роль')
     email = models.EmailField(unique=True, verbose_name='Email')
+    iin = models.CharField(max_length=12, verbose_name='ИИН', blank=True, null=True)
+    phone_number = models.CharField(max_length=20, verbose_name='Телефон', blank=True, null=True)
     
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name', 'position']

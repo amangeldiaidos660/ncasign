@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+	<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset="utf-8" />
+		<title>
+		</title>
+		<style>
+			body { line-height:115%; font-family:Arial; font-size:11pt }
+			h1, h2, h3, h4, h5, h6, p { margin:0pt 0pt 10pt }
+			table { margin-top:0pt; margin-bottom:10pt }
+			h1 { margin-top:24pt; margin-bottom:10pt; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:20pt; font-weight:normal; color:#000000 }
+			h2 { margin-top:18pt; margin-bottom:10pt; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:17pt; font-weight:normal; color:#000000 }
+			h3 { margin-top:16pt; margin-bottom:10pt; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:15pt; font-weight:normal; color:#000000 }
+			h4 { margin-top:16pt; margin-bottom:10pt; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:13pt; font-weight:bold; font-style:normal; color:#000000 }
+			h5 { margin-top:16pt; margin-bottom:10pt; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:12pt; font-weight:bold; color:#000000 }
+			h6 { margin-top:16pt; margin-bottom:10pt; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:11pt; font-weight:bold; color:#000000 }
+			.Heading7 { margin-top:16pt; margin-bottom:10pt; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-size:11pt; font-weight:bold; font-style:italic }
+			.Heading8 { margin-top:16pt; margin-bottom:10pt; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-size:11pt; font-weight:normal; font-style:italic }
+			.Heading9 { margin-top:16pt; margin-bottom:10pt; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-size:10.5pt; font-weight:normal; font-style:italic }
+			.Caption { margin-bottom:10pt; line-height:115%; font-size:9pt; font-weight:bold; color:#4f81bd }
+			.EndnoteText { margin-bottom:0pt; line-height:normal; font-size:10pt }
+			.Footer { margin-bottom:0pt; line-height:normal; font-size:11pt }
+			.FootnoteText { margin-bottom:2pt; line-height:normal; font-size:9pt }
+			.Header { margin-bottom:0pt; line-height:normal; font-size:11pt }
+			.IntenseQuote { margin-right:36pt; margin-left:36pt; margin-bottom:10pt; line-height:115%; border:0.75pt solid #ffffff; padding:5pt 10pt; font-size:11pt; font-style:italic; background-color:#f2f2f2 }
+			.ListParagraph { margin-left:36pt; margin-bottom:10pt; line-height:115%; font-size:11pt }
+			.NoSpacing { margin-bottom:0pt; line-height:normal; font-size:11pt }
+			.Quote { margin-right:36pt; margin-left:36pt; margin-bottom:10pt; line-height:115%; font-size:11pt; font-style:italic }
+			.Subtitle { margin-top:10pt; margin-bottom:10pt; line-height:115%; font-size:12pt }
+			.TOC1 { margin-bottom:2.85pt; line-height:115%; font-size:11pt }
+			.TOC2 { margin-left:14.15pt; margin-bottom:2.85pt; line-height:115%; font-size:11pt }
+			.TOC3 { margin-left:28.35pt; margin-bottom:2.85pt; line-height:115%; font-size:11pt }
+			.TOC4 { margin-left:42.5pt; margin-bottom:2.85pt; line-height:115%; font-size:11pt }
+			.TOC5 { margin-left:56.7pt; margin-bottom:2.85pt; line-height:115%; font-size:11pt }
+			.TOC6 { margin-left:70.85pt; margin-bottom:2.85pt; line-height:115%; font-size:11pt }
+			.TOC7 { margin-left:85.05pt; margin-bottom:2.85pt; line-height:115%; font-size:11pt }
+			.TOC8 { margin-left:99.2pt; margin-bottom:2.85pt; line-height:115%; font-size:11pt }
+			.TOC9 { margin-left:113.4pt; margin-bottom:2.85pt; line-height:115%; font-size:11pt }
+			.TOCHeading { margin-bottom:10pt; line-height:115%; font-size:11pt }
+			.TableofFigures { margin-bottom:0pt; line-height:115%; font-size:11pt }
+			.Title { margin-top:15pt; margin-bottom:10pt; line-height:115%; font-size:24pt }
+			span.EndnoteReference { vertical-align:super }
+			span.FootnoteReference { vertical-align:super }
+			span.Hyperlink { text-decoration:underline; color:#0000ff }
+			span.a1 { font-style:italic }
+			span.\31 { font-family:Arial; font-size:20pt }
+			span.\32 { font-family:Arial; font-size:17pt }
+			span.\33 { font-family:Arial; font-size:15pt }
+			span.\34 { font-family:Arial; font-size:13pt; font-weight:bold }
+			span.\35 { font-family:Arial; font-size:12pt; font-weight:bold }
+			span.\36 { font-family:Arial; font-size:11pt; font-weight:bold }
+			span.\37 { font-family:Arial; font-size:11pt; font-weight:bold; font-style:italic }
+			span.\38 { font-family:Arial; font-size:11pt; font-style:italic }
+			span.\39 { font-family:Arial; font-size:10.5pt; font-style:italic }
+			span.a { font-size:24pt }
+			span.a0 { font-size:12pt }
+			span.a5 { font-size:10pt }
+			span.a4 { font-size:9pt }
+			span.\32 0 { font-style:italic }
+@media (max-width: 900px) { 
+img { 
+   max-width: 100%;
+   height: auto;
+}
+
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+}	
+
+
+		</style>
+	</head>
+	<body>
+		<div>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<p style="margin-bottom:0pt; text-align:right; line-height:115%; font-size:9pt">
+				<em><span style="font-family:Calibri; ">Приложение 50</span></em>
+			</p>
+			<p style="margin-bottom:0pt; text-align:right; line-height:115%; font-size:9pt">
+				<em><span style="font-family:Calibri; ">к приказу Министра финансов</span></em>
+			</p>
+			<p style="margin-bottom:0pt; text-align:right; line-height:115%; font-size:9pt">
+				<em><span style="font-family:Calibri; ">Республики Казахстан</span></em>
+			</p>
+			<p style="margin-bottom:0pt; text-align:right; line-height:115%; font-size:9pt">
+				<em><span style="font-family:Calibri; ">от 20 декабря 2012 года № 562</span></em>
+			</p>
+			<p style="margin-bottom:0pt; text-align:right; line-height:115%; font-size:9pt">
+				<em><span style="font-family:Calibri; ">&#xa0;</span></em>
+			</p>
+			<p style="margin-bottom:0pt; text-align:right; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">Форма Р-1</span>
+			</p>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<table style="width:758.2pt; margin-bottom:0pt; padding:0pt; border-collapse:collapse">
+				<tr style="height:1pt">
+					<td style="width:71.5pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:225.85pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:3.4pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:102.6pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:99.75pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:190.35pt; border-bottom:0.75pt solid #000000; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">ИИН/БИН</span>
+						</p>
+					</td>
+				</tr>
+				<tr style="height:1pt">
+					<td style="width:71.5pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:normal; font-size:9pt">
+							<span style="font-family:Calibri">Заказчик</span>
+						</p>
+					</td>
+					<td colspan="3" style="width:353.45pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:12pt">
+							<a href="https://salemoffice.kz/%5B%5BFIN_ACT_CST_RU:%D0%97%D0%B0%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%5D%5D" title="https://salemoffice.kz/%5B%5BFIN_ACT_CST_RU:%D0%97%D0%B0%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#000000">НАО "КАЗНУ ИМЕНИ АЛЬ-ФАРАБИ" Казахстан, Бостандыкский район, Г.АЛМАТЫ, БОСТАНДЫКСКИЙ РАЙОН, Проспект Аль-Фараби, дом 71 </span></a><span style="font-family:'Times New Roman'"> </span>
+						</p>
+					</td>
+					<td style="width:99.75pt; border-right:0.75pt solid #000000; padding:0pt 5.03pt 0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<strong><span style="font-family:Calibri; ">&#xa0;</span></strong>
+						</p>
+					</td>
+					<td style="width:190.35pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center">
+							<a href="https://salemoffice.kz/%5B%5BFIN_ACT_CST_BIN_RU:%D0%98%D0%98%D0%9D/%D0%91%D0%98%D0%9D%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%D0%B0%5D%5D" title="https://salemoffice.kz/%5B%5BFIN_ACT_CST_BIN_RU:%D0%98%D0%98%D0%9D/%D0%91%D0%98%D0%9D%20%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%D1%87%D0%B8%D0%BA%D0%B0%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#9932cc">990140001154</span></a><span style="line-height:115%; font-size:9pt"> </span>
+						</p>
+					</td>
+				</tr>
+				<tr style="height:15.05pt">
+					<td style="width:71.5pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td colspan="3" style="width:353.45pt; border-top:0.75pt solid #000000; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:normal; font-size:9pt">
+							<em><span style="font-family:Calibri; ">полное наименование, адрес, данные о средствах связи</span></em>
+						</p>
+					</td>
+					<td style="width:99.75pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:190.35pt; border-top:0.75pt solid #000000; border-bottom:0.75pt solid #000000; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+				</tr>
+				<tr style="height:1pt">
+					<td style="width:71.5pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:normal; font-size:9pt">
+							<span style="font-family:Calibri">Исполнитель</span>
+						</p>
+					</td>
+					<td colspan="3" style="width:353.45pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center">
+							<a href="https://salemoffice.kz/%5B%5BFIN_ACT_EXR_RU:%D0%98%D1%81%D0%BF%D0%BE%D0%BB%D0%BD%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%5D%5D" title="https://salemoffice.kz/%5B%5BFIN_ACT_EXR_RU:%D0%98%D1%81%D0%BF%D0%BE%D0%BB%D0%BD%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#000000">{{full_name}}</span></a><span style="line-height:115%; font-size:9pt"> тел. {{phone_number}}</span>
+						</p>
+					</td>
+					<td style="width:99.75pt; border-right:0.75pt solid #000000; padding:0pt 5.03pt 0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<strong><span style="font-family:Calibri; ">&#xa0;</span></strong>
+						</p>
+					</td>
+					<td style="width:190.35pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							{{iin}}
+						</p>
+					</td>
+				</tr>
+				<tr style="height:22.05pt">
+					<td style="width:71.5pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td colspan="3" style="width:353.45pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:normal; border-top:0.75pt solid #000000; font-size:9pt">
+							<em><span style="font-family:Calibri; ">полное наименование, адрес, данные о средствах связи</span></em>
+						</p>
+					</td>
+					<td style="width:99.75pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:190.35pt; border-top:0.75pt solid #000000; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+				</tr>
+				<tr style="height:1pt">
+					<td style="width:71.5pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:normal; font-size:9pt">
+							<span style="font-family:Calibri">Договор (контракт)</span>
+						</p>
+					</td>
+					<td style="width:225.85pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:12pt">
+							<a href="https://salemoffice.kz/%5B%5BFIN_ACT_DOC_RU:%D0%94%D0%BE%D0%B3%D0%BE%D0%B2%D0%BE%D1%80(%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%B0%D0%BA%D1%82)%5D%5D" title="https://salemoffice.kz/%5B%5BFIN_ACT_DOC_RU:%D0%94%D0%BE%D0%B3%D0%BE%D0%B2%D0%BE%D1%80(%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%B0%D0%BA%D1%82)%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#000000">№{{doc_id}} от {{created_date}} Договор ГПХ г.</span></a><span style="font-family:'Times New Roman'"> </span>
+						</p>
+					</td>
+					<td style="width:3.4pt; border-right:0.75pt solid #000000; padding:0pt 5.03pt 0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td rowspan="2" style="width:102.6pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:normal; font-size:9pt">
+							<span style="font-family:Calibri">Номер</span>
+						</p>
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">документа</span>
+						</p>
+					</td>
+					<td rowspan="2" style="width:99.75pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:normal; font-size:9pt">
+							<span style="font-family:Calibri">Дата</span>
+						</p>
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">составления</span>
+						</p>
+					</td>
+					<td style="width:190.35pt; border-left:0.75pt solid #000000; padding:0pt 5.4pt 0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+				</tr>
+				<tr style="height:5.95pt">
+					<td style="width:71.5pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:225.85pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; border-top:0.75pt solid #000000; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:3.4pt; border-right:0.75pt solid #000000; padding:0pt 5.03pt 0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:190.35pt; border-left:0.75pt solid #000000; padding:0pt 5.4pt 0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+				</tr>
+				<tr style="height:1pt">
+					<td style="width:71.5pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:225.85pt; padding:0pt 5.4pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:normal; font-size:9pt">
+							<strong><span style="font-family:Calibri; ">АКТ ВЫПОЛНЕННЫХ РАБОТ (ОКАЗАННЫХ УСЛУГ)</span></strong>
+						</p>
+					</td>
+					<td style="width:3.4pt; border-right:0.75pt solid #000000; padding:0pt 5.03pt 0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<strong><span style="font-family:Calibri; ">&#xa0;</span></strong>
+						</p>
+					</td>
+					<td style="width:102.6pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							{{act_id}}
+						</p>
+					</td>
+					<td style="width:99.75pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:12pt">
+							<a href="https://salemoffice.kz/%5B%5BFIN_ACT_CRD_AT_RU:%D0%94%D0%B0%D1%82%D0%B0%20%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F%5D%5D" title="https://salemoffice.kz/%5B%5BFIN_ACT_CRD_AT_RU:%D0%94%D0%B0%D1%82%D0%B0%20%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#000000">{{current_date}} г.</span></a><span style="font-family:'Times New Roman'"> </span>
+						</p>
+					</td>
+					<td style="width:190.35pt; border-left:0.75pt solid #000000; padding:0pt 5.4pt 0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+				</tr>
+			</table>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span><span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<table style="width:757.65pt; margin-bottom:0pt; padding:0pt; border-collapse:collapse">
+				<tr style="height:22.7pt">
+					<td rowspan="2" style="width:31.7pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Номер по порядку</span>
+						</p>
+					</td>
+					<td rowspan="2" style="width:178.85pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Наименование работ (услуг) (в разрезе их подвидов в соответствии с технической спецификацией, заданием, графиком выполнения работ (услуг) при их наличии)</span>
+						</p>
+					</td>
+					<td rowspan="2" style="width:67.15pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Дата выполнения работ (оказания услуг)</span>
+						</p>
+					</td>
+					<td rowspan="2" style="width:152.2pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Сведения об отчете о научных исследованиях, маркетинговых, консультационных и прочих услугах (дата, номер, количество страниц) (при их наличии)</span>
+						</p>
+					</td>
+					<td rowspan="2" style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Единица измерения</span>
+						</p>
+					</td>
+					<td colspan="3" style="width:210.9pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Выполнено работ (оказано услуг)</span>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">количество</span>
+						</p>
+					</td>
+					<td style="width:65.45pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">цена за единицу</span>
+						</p>
+					</td>
+					<td style="width:72.55pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:middle">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Стоимость</span>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:31.7pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">1</span>
+						</p>
+					</td>
+					<td style="width:178.85pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">2</span>
+						</p>
+					</td>
+					<td style="width:67.15pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">3</span>
+						</p>
+					</td>
+					<td style="width:152.2pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">4</span>
+						</p>
+					</td>
+					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">5</span>
+						</p>
+					</td>
+					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">6</span>
+						</p>
+					</td>
+					<td style="width:65.45pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">7</span>
+						</p>
+					</td>
+					<td style="width:72.55pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">8</span>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:31.7pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">1</span>
+						</p>
+					</td>
+					<td style="width:178.85pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">наука</span>
+						</p>
+					</td>
+					<td style="width:67.15pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">{{start_date}} – {{end_date}} г.</span>
+						</p>
+					</td>
+					<td style="width:152.2pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p>
+							&#xa0;
+						</p>
+					</td>
+					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Месяц</span>
+						</p>
+					</td>
+					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">{{quantity}}</span>
+						</p>
+					</td>
+					<td style="width:65.45pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">{{sum}}</span>
+						</p>
+					</td>
+					<td style="width:72.55pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">{{amount}}</span>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:31.7pt; padding:0pt 5.4pt; vertical-align:top">
+						<p>
+							&#xa0;
+						</p>
+					</td>
+					<td style="width:178.85pt; padding:0pt 5.4pt; vertical-align:top">
+						<p>
+							&#xa0;
+						</p>
+					</td>
+					<td style="width:67.15pt; padding:0pt 5.4pt; vertical-align:top">
+						<p>
+							&#xa0;
+						</p>
+					</td>
+					<td style="width:152.2pt; padding:0pt 5.4pt; vertical-align:top">
+						<p>
+							&#xa0;
+						</p>
+					</td>
+					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Итого </span>
+						</p>
+					</td>
+					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">{{res_quantitu}}</span>
+						</p>
+					</td>
+					<td style="width:65.45pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">X</span>
+						</p>
+					</td>
+					<td style="width:72.55pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
+						<p style="line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">{{res}}</span>
+						</p>
+					</td>
+				</tr>
+			</table>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<table style="width:756.55pt; margin-bottom:0pt; padding:0pt; border-collapse:collapse">
+				<tr style="height:1pt">
+					<td style="width:249.7pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">Сведения об использовании запасов, полученных от заказчика</span>
+						</p>
+					</td>
+					<td style="width:485.25pt; border-bottom:1pt solid #000000; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:12pt">
+							<a href="https://salemoffice.kz/%5B%5BFIN_ACT_CST_INV_INFO_RU:%D0%A1%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%BE%D0%B1%20%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B8%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2%5D%5D" title="https://salemoffice.kz/%5B%5BFIN_ACT_CST_INV_INFO_RU:%D0%A1%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%BE%D0%B1%20%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B8%20%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%BE%D0%B2%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#000000">&#xa0;</span></a><span style="font-family:'Times New Roman'"> </span>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:249.7pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+							<span style="font-family:Calibri">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:485.25pt; padding:0pt 5.4pt; vertical-align:top">
+						<p style="margin-bottom:0pt; text-align:center; line-height:115%; font-size:9pt">
+							<em><span style="font-family:Calibri; ">наименование, количество, стоимость</span></em>
+						</p>
+					</td>
+				</tr>
+			</table>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">Приложение: Перечень документации, в том числе отчет(ы) о маркетинговых, научных исследованиях, консультационных и прочих услугах (обязательны при его</span>
+			</p>
+			<p style="margin-left:49.6pt; margin-bottom:0pt; line-height:115%; font-size:12pt">
+				<span style="line-height:115%; font-family:Calibri; font-size:9pt">(их) наличии) на </span><a href="https://salemoffice.kz/%5B%5BANX_PG_NUM_RU:%D0%9A%D0%BE%D0%BB%D0%B8%D1%87%D0%B5%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%20%D0%BF%D0%B5%D1%80%D0%B5%D1%87%D0%BD%D1%8F%5D%5D" title="https://salemoffice.kz/%5B%5BANX_PG_NUM_RU:%D0%9A%D0%BE%D0%BB%D0%B8%D1%87%D0%B5%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%20%D0%BF%D0%B5%D1%80%D0%B5%D1%87%D0%BD%D1%8F%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#000000">None</span></a><span style="font-family:'Times New Roman'"> </span><span style="line-height:115%; font-family:Calibri; font-size:9pt">&#xa0;</span><span style="line-height:115%; font-family:Calibri; font-size:9pt">страниц </span><a href="https://salemoffice.kz/%5B%5BANX_NOTE_RU:%D0%9F%D0%B5%D1%80%D0%B5%D1%87%D0%B5%D0%BD%D1%8C%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D0%B8%5D%5D" title="https://salemoffice.kz/%5B%5BANX_NOTE_RU:%D0%9F%D0%B5%D1%80%D0%B5%D1%87%D0%B5%D0%BD%D1%8C%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D0%B8%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#000000">&#xa0;</span></a><span style="line-height:115%; font-size:9pt"> </span>
+			</p>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:9pt">
+				<span style="font-family:Calibri">&#xa0;</span>
+			</p>
+			<p style="margin-bottom:0pt; line-height:115%; font-size:12pt">
+				<a href="https://salemoffice.kz/%5B%5BFIN_LT_APR_LIST_RU:%D0%9B%D0%B8%D1%81%D1%82%20%D1%81%D0%BE%D0%B3%D0%BB%D0%B0%D1%81%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%5D%5D" title="https://salemoffice.kz/%5B%5BFIN_LT_APR_LIST_RU:%D0%9B%D0%B8%D1%81%D1%82%20%D1%81%D0%BE%D0%B3%D0%BB%D0%B0%D1%81%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#000000">&#xa0;</span></a><span style="font-family:'Times New Roman'"> </span>
+			</p>
+			<table style="margin-bottom:0pt; padding:0pt; border-collapse:collapse">
+				<tr>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<strong><span style="font-family:'Times New Roman'; ">ФИО, подразделение, должность</span></strong>
+						</p>
+					</td>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<strong><span style="font-family:'Times New Roman'; ">Тип действия</span></strong>
+						</p>
+					</td>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<strong><span style="font-family:'Times New Roman'; ">Время и дата</span></strong>
+						</p>
+					</td>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<strong><span style="font-family:'Times New Roman'; ">Данные по ЭЦП</span></strong>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<span style="font-family:'Times New Roman'">Круглов Марк</span><span style="font-family:'Times New Roman'">&#xa0; </span><span style="font-family:'Times New Roman'">- Исполнитель ГПХ</span>
+						</p>
+					</td>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<span style="font-family:'Times New Roman'">Подписано</span><br /><span style="font-family:'Times New Roman'">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<span style="font-family:'Times New Roman'">20.06.2025 15:43</span>
+						</p>
+					</td>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<span style="font-family:'Times New Roman'">[ЭЦП] Самарханова Айя - ҰЛТТЫҚ КУӘЛАНДЫРУШЫ ОРТАЛЫҚ (GOST) 2022</span>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<span style="font-family:'Times New Roman'">Сариев Ғалымжан</span><span style="font-family:'Times New Roman'">&#xa0; </span><span style="font-family:'Times New Roman'">- Начальник управления - Управление науки и публикационной активности</span>
+						</p>
+					</td>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<span style="font-family:'Times New Roman'">Подписано</span><br /><span style="font-family:'Times New Roman'">&#xa0;</span>
+						</p>
+					</td>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<span style="font-family:'Times New Roman'">20.06.2025 15:44</span>
+						</p>
+					</td>
+					<td style="width:188.8pt; border:0.75pt solid #000000; padding:0pt; vertical-align:top">
+						<p style="line-height:115%; font-size:12pt">
+							<span style="font-family:'Times New Roman'">[ЭЦП] Самарханова Айя - ҰЛТТЫҚ КУӘЛАНДЫРУШЫ ОРТАЛЫҚ (GOST) 2022</span>
+						</p>
+					</td>
+				</tr>
+			</table>
+			<p>
+				&#xa0;
+			</p>
+			<div style="clear:both">
+				<p style="margin-bottom:0pt; line-height:115%; font-size:12pt">
+					<span style="font-family:'Times New Roman'">&#xa0;</span>
+				</p>
+				<table style="width:758.5pt; margin-bottom:0pt; border:1pt solid #ffffff; padding:0pt; border-collapse:collapse">
+					<tr>
+						<td style="width:120.5pt; border-right:1pt solid #ffffff; padding:5pt 4.5pt; vertical-align:top">
+							<p style="margin-bottom:0pt">
+								<a href="https://salemoffice.kz/%5B%5BFIN_QR_RU:QR%20%D0%BA%D0%BE%D0%B4%5D%5D" title="https://salemoffice.kz/%5B%5BFIN_QR_RU:QR%20%D0%BA%D0%BE%D0%B4%5D%5D" style="text-decoration:none"><span style="line-height:115%; font-size:9pt; color:#000000">&#xa0;</span><img src="1752633789_act/1752633789_act-1.png" width="110" height="110" alt="" /></a>
+							</p>
+						</td>
+						<td style="width:617pt; border-left:1pt solid #ffffff; padding:5pt 4.5pt; vertical-align:top">
+							<p style="margin-bottom:0pt; line-height:normal; widows:0; orphans:0; font-size:12pt">
+								<span style="font-family:'Times New Roman'">Настоящий документ, в соответствии с пунктом 1 статьи 7 Закона Республики Казахстан от 7 января 2003 года № 370-II «Об электронном документе и электронной цифровой подписи», удостоверенный посредством электронной цифровой подписи лица, имеющего полномочия на его подписание, равнозначен подписанному документу на бумажном носителе</span>
+							</p>
+							<p style="margin-bottom:0pt; line-height:normal; widows:0; orphans:0; font-size:12pt">
+								<span style="font-family:'Times New Roman'">Код документа: </span><a href="https://salemoffice.kz/%5B%5BDOC_UNIQ_CODE:%D0%A3%D0%BD%D0%B8%D0%BA%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D0%BA%D0%BE%D0%B4%5D%5D" title="https://salemoffice.kz/%5B%5BDOC_UNIQ_CODE:%D0%A3%D0%BD%D0%B8%D0%BA%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D0%BA%D0%BE%D0%B4%5D%5D" style="text-decoration:none"><u><span style="font-family:'Times New Roman'; color:#000000">3aff30e9-027a-4980-87bf-002e0ae988cd</span></u></a>
+							</p>
+						</td>
+					</tr>
+				</table>
+				<p style="margin-bottom:0pt; line-height:115%; font-size:12pt">
+					<span style="font-family:'Times New Roman'">&#xa0;</span>
+				</p>
+			</div>
+		</div>
+	<p style="bottom: 10px; right: 10px; position: absolute;"><a href="https://wordtohtml.net" target="_blank" style="font-size:11px; color: #d0d0d0">Converted to HTML with WordToHTML.net</a></p>
+</body>
+</html>
