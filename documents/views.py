@@ -60,6 +60,8 @@ def gph_create(request):
 @role_required([1, 5])  # Только Админ и Редактор могут создавать акты
 def act_create(request):
     """Создание акта с формой и предпросмотром шаблона"""
+    if request.method == 'GET':
+        request.session['package_acts'] = []
     if request.method == 'POST':
         form = ActForm(request.POST)
         if form.is_valid():
@@ -181,56 +183,65 @@ def act_preview(request):
         html_path = os.path.join(settings.BASE_DIR, 'static', 'docs', 'act.html')
         if not os.path.exists(html_path):
             return JsonResponse({'success': False, 'error': 'Файл шаблона act.html не найден'})
-        
         with open(html_path, 'r', encoding='utf-8') as file:
             html_content = file.read()
-        
-        # Если это POST запрос, подставляем данные из формы
         if request.method == 'POST':
             data = {
                 'full_name': request.POST.get('full_name', ''),
                 'phone_number': request.POST.get('phone_number', ''),
                 'iin': request.POST.get('iin', ''),
                 'doc_id': request.POST.get('doc_id', ''),
-                'act_id': '',  # Оставляем пустым, будем генерировать на бэкенде
+                'act_id': '',
                 'current_date': timezone.now().strftime('%d.%m.%Y'),
                 'start_date': request.POST.get('start_date', ''),
                 'end_date': request.POST.get('end_date', ''),
                 'quantity': request.POST.get('quantity', ''),
                 'unit_price': request.POST.get('unit_price', ''),
                 'amount': request.POST.get('amount', ''),
-                'created_date': '',  # Будем заполнять из ГПХ договора
+                'created_date': '',
+                'text': request.POST.get('text', ''),
+                'unit': request.POST.get('unit', ''),
+                'additional_text': request.POST.get('additional_text', ''),
+                'vat_included': request.POST.get('vat_included', '') == 'on',
             }
-            
+            # Форматируем даты для предпросмотра
+            from datetime import datetime
+            def format_date(val):
+                try:
+                    if isinstance(val, str) and val:
+                        return datetime.strptime(val, '%Y-%m-%d').strftime('%d.%m.%Y') if '-' in val else val
+                    return val
+                except Exception:
+                    return val
+            data['start_date'] = format_date(data['start_date'])
+            data['end_date'] = format_date(data['end_date'])
             # Если указан исполнитель, ищем его последний ГПХ договор только для ID
             executor_username = request.POST.get('executor', '')
             if executor_username and not data['doc_id']:
                 try:
                     User = get_user_model()
                     user = User.objects.get(username=executor_username, role=4)
-                    # Ищем последний ГПХ договор пользователя только для получения ID
                     last_gph = GphDocument.objects.filter(
                         user=user, 
                         doc_type='gph'
                     ).order_by('-created_at').first()
-                    
                     if last_gph:
                         data['doc_id'] = last_gph.doc_id
                         data['created_date'] = last_gph.created_at.strftime('%d.%m.%Y') if last_gph.created_at else ''
                 except User.DoesNotExist:
                     pass
-            
-            # Вычисляем общую стоимость (количество × цена за единицу)
+            # Вычисляем сумму с учётом НДС, если отмечено
             try:
                 quantity = float(data['quantity']) if data['quantity'] else 0
                 unit_price = float(data['unit_price']) if data['unit_price'] else 0
-                if quantity > 0 and unit_price > 0:
-                    data['amount'] = f"{quantity * unit_price:.2f}"
+                amount = quantity * unit_price
+                if data['vat_included']:
+                    amount_vat = amount * 1.12
+                    data['amount'] = f"{amount:.2f} (с НДС: {amount_vat:.2f})"
                 else:
-                    data['amount'] = ''
+                    data['amount'] = f"{amount:.2f}"
             except (ValueError, ZeroDivisionError):
                 data['amount'] = ''
-            
             # Подставляем данные в HTML
             html_content = html_content.replace('{{full_name}}', f'<strong>{data["full_name"]}</strong>' if data['full_name'] else '')
             html_content = html_content.replace('{{phone_number}}', f'<strong>{data["phone_number"]}</strong>' if data['phone_number'] else '')
@@ -244,12 +255,16 @@ def act_preview(request):
             html_content = html_content.replace('{{quantity}}', f'<strong>{data["quantity"]}</strong>' if data['quantity'] else '')
             html_content = html_content.replace('{{sum}}', f'<strong>{data["unit_price"]}</strong>' if data['unit_price'] else '')
             html_content = html_content.replace('{{amount}}', f'<strong>{data["amount"]}</strong>' if data['amount'] else '')
-            
-            # Вычисляем итоговые значения
+            html_content = html_content.replace('{{text}}', f'<strong>{data["text"]}</strong>' if data['text'] else '')
+            html_content = html_content.replace('{{unit}}', f'<strong>{data["unit"]}</strong>' if data['unit'] else '')
+            html_content = html_content.replace('{{additional_text}}', f'<strong>{data["additional_text"]}</strong>' if data['additional_text'] else '')
+            # Итоговые значения
             res_quantity = data['quantity'] if data['quantity'] else ''
             res_amount = data['amount'] if data['amount'] else ''
             html_content = html_content.replace('{{res_quantitu}}', f'<strong>{res_quantity}</strong>')
             html_content = html_content.replace('{{res}}', f'<strong>{res_amount}</strong>')
+            preview_html = f'<div style="font-family: Times New Roman, serif; font-size: 14px; line-height: 1.5; color: #000;">{html_content}</div>'
+            return JsonResponse({'success': True, 'preview_html': preview_html})
         else:
             # Для GET запроса показываем пустой шаблон
             html_content = html_content.replace('{{full_name}}', '')
@@ -263,12 +278,13 @@ def act_preview(request):
             html_content = html_content.replace('{{quantity}}', '')
             html_content = html_content.replace('{{sum}}', '')
             html_content = html_content.replace('{{amount}}', '')
+            html_content = html_content.replace('{{text}}', '')
+            html_content = html_content.replace('{{unit}}', '')
+            html_content = html_content.replace('{{additional_text}}', '')
             html_content = html_content.replace('{{res_quantitu}}', '')
             html_content = html_content.replace('{{res}}', '')
-        
-        preview_html = f'<div style="font-family: Times New Roman, serif; font-size: 14px; line-height: 1.5; color: #000;">{html_content}</div>'
-        return JsonResponse({'success': True, 'preview_html': preview_html})
-        
+            preview_html = f'<div style="font-family: Times New Roman, serif; font-size: 14px; line-height: 1.5; color: #000;">{html_content}</div>'
+            return JsonResponse({'success': True, 'preview_html': preview_html})
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Ошибка загрузки документа: {str(e)}'})
 
@@ -300,6 +316,18 @@ def gph_save(request):
                         pass
             # Формируем actions
             actions = []
+            actions.append({
+                'role': 'executor',
+                'username': user.username,
+                'full_name': user.full_name,
+                'status': 'ожидание'
+            })
+            actions.append({
+                'role': 'initiator',
+                'username': request.user.username,
+                'full_name': request.user.get_full_name() or request.user.username,
+                'status': 'ожидание'
+            })
             for appr in approvers:
                 actions.append({
                     'role': 'approver',
@@ -312,12 +340,6 @@ def gph_save(request):
                 'role': 'signer',
                 'username': signer.username,
                 'full_name': signer.full_name,
-                'status': 'ожидание'
-            })
-            actions.append({
-                'role': 'executor',
-                'username': user.username,
-                'full_name': user.full_name,
                 'status': 'ожидание'
             })
             # 1. Создаем запись в БД (генерируется doc_id)
@@ -515,23 +537,17 @@ def act_save(request):
         if form.is_valid():
             data = form.cleaned_data
             executor_username = data['executor']
-            
-            # Получаем пользователя-исполнителя
             User = get_user_model()
             try:
                 user = User.objects.get(username=executor_username, role=4)
             except User.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Исполнитель не найден'})
-            
-            # Находим последний ГПХ договор пользователя
             last_gph = GphDocument.objects.filter(
                 user=user, 
                 doc_type='gph'
             ).order_by('-created_at').first()
-            
             if not last_gph:
                 return JsonResponse({'success': False, 'error': 'ГПХ договор не найден для данного исполнителя'})
-            
             # Согласующие
             approvers = []
             if 'approvers' in request.POST:
@@ -546,9 +562,23 @@ def act_save(request):
                         })
                     except User.DoesNotExist:
                         pass
-            
             # Формируем actions
             actions = []
+            # 1. Исполнитель
+            actions.append({
+                'role': 'executor',
+                'username': user.username,
+                'full_name': user.full_name,
+                'status': 'ожидание'
+            })
+            # 2. Инициатор
+            actions.append({
+                'role': 'initiator',
+                'username': request.user.username,
+                'full_name': request.user.get_full_name() or request.user.username,
+                'status': 'ожидание'
+            })
+            # 3. Согласующие
             for appr in approvers:
                 actions.append({
                     'role': 'approver',
@@ -556,27 +586,26 @@ def act_save(request):
                     'full_name': appr['full_name'],
                     'status': 'ожидание'
                 })
+            # 4. Подписант
+            signer = data['signer']
             actions.append({
                 'role': 'signer',
-                'username': '250003',
-                'full_name': 'Подписант',
+                'username': signer.username,
+                'full_name': signer.full_name,
                 'status': 'ожидание'
             })
-            actions.append({
-                'role': 'executor',
-                'username': user.username,
-                'full_name': user.full_name,
-                'status': 'ожидание'
-            })
-            # Вычисляем общую стоимость
+            # Считаем сумму с учётом НДС, если отмечено
             try:
                 quantity = float(data['quantity']) if data['quantity'] else 0
                 unit_price = float(data['unit_price']) if data['unit_price'] else 0
-                amount = f"{quantity * unit_price:.2f}" if quantity > 0 and unit_price > 0 else "0.00"
+                amount = quantity * unit_price
+                if data.get('vat_included'):
+                    amount_vat = amount * 1.12
+                    amount_str = f"{amount:.2f} (с НДС: {amount_vat:.2f})"
+                else:
+                    amount_str = f"{amount:.2f}"
             except (ValueError, ZeroDivisionError):
-                amount = "0.00"
-            
-            # 1. Создаем запись в БД (генерируется act_id)
+                amount_str = "0.00"
             document = ActDocument.objects.create(
                 user=user,
                 gph_document=last_gph,
@@ -587,64 +616,81 @@ def act_save(request):
                 end_date=data['end_date'],
                 quantity=data['quantity'],
                 unit_price=data['unit_price'],
-                amount=amount,
+                amount=amount_str,
+                text=data['text'],
+                unit=data['unit'],
+                additional_text=data['additional_text'],
                 file_path='',  # временно
-                approvers=approvers,
                 actions=actions
             )
             act_id = document.act_id
-            
-            # 2. Формируем docx с подстановкой всех данных
-            template_path = os.path.join(settings.BASE_DIR, 'static', 'docs', 'act.docx')
-            doc = DocxDocument(template_path)
-            
-            def replace_placeholders(text):
-                text = text.replace('{{full_name}}', data['full_name'])
-                text = text.replace('{{phone_number}}', data['phone_number'])
-                text = text.replace('{{iin}}', data['iin'])
-                text = text.replace('{{doc_id}}', last_gph.doc_id)
-                text = text.replace('{{created_date}}', last_gph.created_at.strftime('%d.%m.%Y') if last_gph.created_at else '')
-                text = text.replace('{{act_id}}', act_id)
-                text = text.replace('{{current_date}}', document.created_at.strftime('%d.%m.%Y'))
-                text = text.replace('{{start_date}}', str(data['start_date']))
-                text = text.replace('{{end_date}}', str(data['end_date']))
-                text = text.replace('{{quantity}}', data['quantity'])
-                text = text.replace('{{sum}}', data['unit_price'])
-                text = text.replace('{{amount}}', amount)
-                text = text.replace('{{res_quantitu}}', data['quantity'])
-                text = text.replace('{{res}}', amount)
-                return text
-            
-            for paragraph in doc.paragraphs:
-                paragraph.text = replace_placeholders(paragraph.text)
-            for table in doc.tables:
-                for row in table.rows:
-                    for cell in row.cells:
-                        for paragraph in cell.paragraphs:
-                            paragraph.text = replace_placeholders(paragraph.text)
-            
-            # 3. Сохраняем docx в память
-            file_stream = io.BytesIO()
-            doc.save(file_stream)
-            file_stream.seek(0)
-            
-            # 4. Загружаем в Dropbox
-            access_token = get_dropbox_access_token()
-            dbx = dropbox.Dropbox(access_token)
-            dropbox_folder = f"/ncasign/{user.username}/"
-            dropbox_filename = f"Акт-{user.username}-{document.created_at.strftime('%Y%m%d-%H%M%S')}.docx"
-            dropbox_path = dropbox_folder + dropbox_filename
-            dbx.files_upload(file_stream.read(), dropbox_path, mode=dropbox.files.WriteMode.overwrite)
-            
-            # 5. Получаем публичную ссылку
-            shared_link_metadata = dbx.sharing_create_shared_link_with_settings(dropbox_path)
-            public_url = shared_link_metadata.url.replace('?dl=0', '?raw=1')
-            
-            # 6. Сохраняем ссылку в модель
-            document.file_path = public_url
-            document.save()
-            
-            return JsonResponse({'success': True, 'file_path': public_url, 'act_id': act_id})
+            # Загружаем файл в Dropbox
+            try:
+                template_path = os.path.join(settings.BASE_DIR, 'static', 'docs', 'act.docx')
+                doc = DocxDocument(template_path)
+                def replace_placeholders(text):
+                    text = text.replace('{{full_name}}', data['full_name'])
+                    text = text.replace('{{phone_number}}', data['phone_number'])
+                    text = text.replace('{{iin}}', data['iin'])
+                    text = text.replace('{{doc_id}}', last_gph.doc_id)
+                    text = text.replace('{{created_date}}', last_gph.created_at.strftime('%d.%m.%Y') if last_gph.created_at else '')
+                    text = text.replace('{{act_id}}', document.act_id)
+                    text = text.replace('{{current_date}}', document.created_at.strftime('%d.%m.%Y'))
+                    text = text.replace('{{start_date}}', data['start_date'].strftime('%d.%m.%Y') if hasattr(data['start_date'], 'strftime') else str(data['start_date']))
+                    text = text.replace('{{end_date}}', data['end_date'].strftime('%d.%m.%Y') if hasattr(data['end_date'], 'strftime') else str(data['end_date']))
+                    text = text.replace('{{quantity}}', data['quantity'])
+                    text = text.replace('{{sum}}', data['unit_price'])
+                    text = text.replace('{{amount}}', amount_str)
+                    text = text.replace('{{text}}', data['text'])
+                    text = text.replace('{{unit}}', data['unit'])
+                    text = text.replace('{{additional_text}}', data['additional_text'])
+                    text = text.replace('{{res_quantitu}}', data['quantity'])
+                    text = text.replace('{{res}}', amount_str)
+                    return text
+                for paragraph in doc.paragraphs:
+                    paragraph.text = replace_placeholders(paragraph.text)
+                for table in doc.tables:
+                    for row in table.rows:
+                        for cell in row.cells:
+                            for paragraph in cell.paragraphs:
+                                paragraph.text = replace_placeholders(paragraph.text)
+                file_stream = io.BytesIO()
+                doc.save(file_stream)
+                file_stream.seek(0)
+                access_token = get_dropbox_access_token()
+                dbx = dropbox.Dropbox(access_token)
+                dropbox_folder = f"/ncasign/{user.username}/"
+                dropbox_filename = f"Акт-{user.username}-{document.created_at.strftime('%Y%m%d-%H%M%S')}.docx"
+                dropbox_path = dropbox_folder + dropbox_filename
+                dbx.files_upload(file_stream.read(), dropbox_path, mode=dropbox.files.WriteMode.overwrite)
+                shared_link_metadata = dbx.sharing_create_shared_link_with_settings(dropbox_path)
+                public_url = shared_link_metadata.url.replace('?dl=0', '?raw=1')
+                document.file_path = public_url
+                document.save()
+            except Exception as e:
+                document.delete()
+                return JsonResponse({'success': False, 'error': f'Ошибка загрузки файла: {str(e)}'})
+            # Добавляем акт в пакет (сессия)
+            act_info = {
+                'act_id': document.act_id,
+                'executor_username': executor_username,
+                'executor_name': data['full_name'],
+                'amount': amount_str,
+                'created_at': document.created_at.isoformat()
+            }
+            package_acts = request.session.get('package_acts', [])
+            existing_executors = [act.get('executor_username') for act in package_acts]
+            if executor_username in existing_executors:
+                return JsonResponse({'success': False, 'error': 'Этот исполнитель уже добавлен в пакет'})
+            package_acts.append(act_info)
+            request.session['package_acts'] = package_acts
+            request.session.modified = True
+            return JsonResponse({
+                'success': True, 
+                'message': f'Акт для {data["full_name"]} добавлен в пакет',
+                'package_count': len(package_acts),
+                'act_id': document.act_id
+            })
         else:
             return JsonResponse({'success': False, 'error': 'Неверные данные формы'})
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
@@ -658,30 +704,21 @@ def add_act_to_package(request):
         if form.is_valid():
             data = form.cleaned_data
             executor_username = data['executor']
-            
-            # Получаем пользователя-исполнителя
             User = get_user_model()
             try:
                 user = User.objects.get(username=executor_username, role=4)
             except User.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Исполнитель не найден'})
-            
-            # Проверяем, не добавлен ли уже этот исполнитель в пакет
             package_acts = request.session.get('package_acts', [])
             existing_executors = [act.get('executor_username') for act in package_acts]
             if executor_username in existing_executors:
                 return JsonResponse({'success': False, 'error': 'Этот исполнитель уже добавлен в пакет'})
-            
-            # Находим последний ГПХ договор пользователя
             last_gph = GphDocument.objects.filter(
                 user=user, 
                 doc_type='gph'
             ).order_by('-created_at').first()
-            
             if not last_gph:
                 return JsonResponse({'success': False, 'error': 'ГПХ договор не найден для данного исполнителя'})
-            
-            # Согласующие
             approvers = []
             if 'approvers' in request.POST:
                 approver_usernames = request.POST.getlist('approvers')
@@ -695,16 +732,27 @@ def add_act_to_package(request):
                         })
                     except User.DoesNotExist:
                         pass
-            
-            # Вычисляем общую стоимость
-            try:
-                quantity = float(data['quantity']) if data['quantity'] else 0
-                unit_price = float(data['unit_price']) if data['unit_price'] else 0
-                amount = f"{quantity * unit_price:.2f}" if quantity > 0 and unit_price > 0 else "0.00"
-            except (ValueError, ZeroDivisionError):
-                amount = "0.00"
-            # Формируем actions
+            # Определяем подписанта ДО формирования actions
+            if 'signer' in data and data['signer']:
+                signer = data['signer']
+            else:
+                signer = User.objects.filter(role=2).first()
+                if not signer:
+                    return JsonResponse({'success': False, 'error': 'Не найден подписант в системе'})
+            # Теперь формируем actions
             actions = []
+            actions.append({
+                'role': 'executor',
+                'username': user.username,
+                'full_name': user.full_name,
+                'status': 'ожидание'
+            })
+            actions.append({
+                'role': 'initiator',
+                'username': request.user.username,
+                'full_name': request.user.get_full_name() or request.user.username,
+                'status': 'ожидание'
+            })
             for appr in approvers:
                 actions.append({
                     'role': 'approver',
@@ -714,17 +762,16 @@ def add_act_to_package(request):
                 })
             actions.append({
                 'role': 'signer',
-                'username': '250003',
-                'full_name': 'Подписант',
+                'username': signer.username,
+                'full_name': signer.full_name,
                 'status': 'ожидание'
             })
-            actions.append({
-                'role': 'executor',
-                'username': user.username,
-                'full_name': user.full_name,
-                'status': 'ожидание'
-            })
-            # Создаем запись в БД
+            try:
+                quantity = float(data['quantity']) if data['quantity'] else 0
+                unit_price = float(data['unit_price']) if data['unit_price'] else 0
+                amount = f"{quantity * unit_price:.2f}" if quantity > 0 and unit_price > 0 else "0.00"
+            except (ValueError, ZeroDivisionError):
+                amount = "0.00"
             document = ActDocument.objects.create(
                 user=user,
                 gph_document=last_gph,
@@ -736,6 +783,9 @@ def add_act_to_package(request):
                 quantity=data['quantity'],
                 unit_price=data['unit_price'],
                 amount=amount,
+                text=data['text'],
+                unit=data['unit'],
+                additional_text=data['additional_text'],
                 file_path='',  # временно
                 actions=actions
             )
@@ -753,11 +803,14 @@ def add_act_to_package(request):
                     text = text.replace('{{created_date}}', last_gph.created_at.strftime('%d.%m.%Y') if last_gph.created_at else '')
                     text = text.replace('{{act_id}}', document.act_id)
                     text = text.replace('{{current_date}}', document.created_at.strftime('%d.%m.%Y'))
-                    text = text.replace('{{start_date}}', str(data['start_date']))
-                    text = text.replace('{{end_date}}', str(data['end_date']))
+                    text = text.replace('{{start_date}}', data['start_date'].strftime('%d.%m.%Y') if hasattr(data['start_date'], 'strftime') else str(data['start_date']))
+                    text = text.replace('{{end_date}}', data['end_date'].strftime('%d.%m.%Y') if hasattr(data['end_date'], 'strftime') else str(data['end_date']))
                     text = text.replace('{{quantity}}', data['quantity'])
                     text = text.replace('{{sum}}', data['unit_price'])
                     text = text.replace('{{amount}}', amount)
+                    text = text.replace('{{text}}', data['text'])
+                    text = text.replace('{{unit}}', data['unit'])
+                    text = text.replace('{{additional_text}}', data['additional_text'])
                     text = text.replace('{{res_quantitu}}', data['quantity'])
                     text = text.replace('{{res}}', amount)
                     return text
@@ -888,3 +941,10 @@ def get_package_info(request):
         'package_count': len(package_acts),
         'acts': package_acts
     })
+
+@require_GET
+@login_required
+def act_package_count(request):
+    """Возвращает количество актов в виртуальном пакете пользователя (из сессии)"""
+    package_acts = request.session.get('package_acts', [])
+    return JsonResponse({'success': True, 'count': len(package_acts)})

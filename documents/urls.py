@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import act_create, act_preview, act_save, act_package_count
 
 app_name = 'documents'
 
@@ -17,4 +18,5 @@ urlpatterns = [
     path('acts/save-package/', views.save_package, name='save_package'),
     path('acts/clear-package/', views.clear_package, name='clear_package'),
     path('acts/package-info/', views.get_package_info, name='get_package_info'),
+    path('acts/package-count/', act_package_count, name='act_package_count'),
 ] 

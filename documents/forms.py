@@ -121,3 +121,36 @@ class ActForm(forms.Form):
         label='Согласующие',
         required=False
     ) 
+    signer = forms.ModelChoiceField(
+        queryset=User.objects.filter(role=2),
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'signer'
+        }),
+        label='Подписант',
+        required=False
+    ) 
+    text = forms.CharField(
+        label='Наименование работ (услуг)',
+        max_length=255,
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Описание услуги/работы'})
+    )
+    unit = forms.CharField(
+        label='Единица измерения',
+        max_length=50,
+        required=True,
+        initial='месяц',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'месяц'})
+    )
+    additional_text = forms.CharField(
+        label='Сведения об отчете',
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Дата, номер, количество страниц и т.д.'})
+    )
+    vat_included = forms.BooleanField(
+        label='Включить НДС (12%)',
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    ) 

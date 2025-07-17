@@ -23,6 +23,7 @@ class GphDocument(models.Model):
     end_date = models.DateField(verbose_name='Дата окончания')
     file_path = models.CharField(max_length=255, verbose_name='Публичная ссылка на файл')
     actions = models.JSONField(default=list, verbose_name='Этапы согласования и подписания')
+    attachments = models.JSONField(default=list, blank=True, verbose_name='Вложения')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания (секунды)')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     
@@ -73,8 +74,12 @@ class ActDocument(models.Model):
     amount = models.CharField(max_length=50, verbose_name='Общая стоимость')
     file_path = models.CharField(max_length=255, verbose_name='Публичная ссылка на файл')
     actions = models.JSONField(default=list, verbose_name='Этапы согласования и подписания')
+    attachments = models.JSONField(default=list, blank=True, verbose_name='Вложения')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    text = models.CharField(max_length=255, verbose_name='Наименование работ (услуг)', default='')
+    unit = models.CharField(max_length=50, verbose_name='Единица измерения', default='месяц')
+    additional_text = models.CharField(max_length=255, verbose_name='Сведения об отчете', blank=True, default='')
     
     class Meta:
         verbose_name = 'Акт выполненных работ'
@@ -100,11 +105,11 @@ class ActDocument(models.Model):
         max_attempts = 100
         for attempt in range(max_attempts):
             random_suffix = str(random.randint(1000, 9999))
-            act_id = f"АКТ-{current_year}{current_month}{current_day}-{current_time}-{random_suffix}"
+            act_id = f"{current_year}{current_month}{current_day}-{current_time}-{random_suffix}"
             if not ActDocument.objects.filter(act_id=act_id).exists():
                 return act_id
         additional_suffix = str(random.randint(10000, 99999))
-        return f"АКТ-{current_year}{current_month}{current_day}-{current_time}-{random_suffix}-{additional_suffix}"
+        return f"{current_year}{current_month}{current_day}-{current_time}-{random_suffix}-{additional_suffix}"
 
 
 class ActPackage(models.Model):
