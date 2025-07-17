@@ -18,6 +18,14 @@
                 <div class="alert alert-danger">
                     Пожалуйста, исправьте ошибки в форме
                 </div>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div class="text-danger">{{ field.label }}: {{ error }}</div>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
             {% endif %}
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -51,6 +59,12 @@
                     {% endif %}
                 </div>
             </div>
+            <div class="mb-3" id="proxy-fields" style="display: none;">
+                {{ form.proxy_number.label_tag }}
+                {{ form.proxy_number }}
+                {{ form.proxy_date.label_tag }}
+                {{ form.proxy_date }}
+            </div>
             <div class="mb-3">
                 <label for="id_iin" class="form-label">ИИН</label>
                 {{ form.iin }}
@@ -74,4 +88,25 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var roleSelect = document.getElementById('id_role');
+    var proxyFields = document.getElementById('proxy-fields');
+    function toggleProxyFields() {
+        if (roleSelect.value == '2') {
+            proxyFields.style.display = '';
+        } else {
+            proxyFields.style.display = 'none';
+        }
+    }
+    if (roleSelect && proxyFields) {
+        roleSelect.addEventListener('change', toggleProxyFields);
+        toggleProxyFields();
+    }
+});
+</script>
 {% endblock %} 

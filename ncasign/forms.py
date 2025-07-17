@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from ncasign.models import User
 from datetime import datetime
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(
@@ -25,16 +26,13 @@ class CustomAuthenticationForm(AuthenticationForm):
         username = self.cleaned_data.get('username')
         
         if username:
-            # Проверяем, является ли поле email
             if '@' in username:
-                # Ищем пользователя по email
                 try:
                     user = User.objects.get(email=username)
                     return user.username
                 except User.DoesNotExist:
                     raise forms.ValidationError('Пользователь с таким email не найден')
             else:
-                # Используем как username (ID)
                 return username
         
         return username
@@ -52,7 +50,9 @@ class CustomUserCreationForm(forms.ModelForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Должность'
-        })
+        }),
+        label='Должность',
+        required=False
     )
     role = forms.ChoiceField(
         choices=User.ROLE_CHOICES,
@@ -81,15 +81,38 @@ class CustomUserCreationForm(forms.ModelForm):
             'placeholder': 'Телефон'
         })
     )
+    proxy_number = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Номер доверенности'
+        }),
+        label='Номер доверенности',
+        required=False
+    )
+    proxy_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date',
+            'placeholder': 'Дата доверенности',
+            'id': 'proxy_date'
+        }, format='%Y-%m-%d'),
+        label='Дата доверенности',
+        required=False
+    )
 
     class Meta:
         model = User
-        fields = ('full_name', 'position', 'role', 'email', 'iin', 'phone_number')
+        fields = ('full_name', 'position', 'email', 'role', 'iin', 'phone_number', 'proxy_number', 'proxy_date')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['proxy_number'].required = False
+        self.fields['proxy_date'].required = False
     
     def save(self, commit=True):
         user = super().save(commit=False)
-        # Генерируем username как год + порядковый номер (YY####)
-        current_year = str(datetime.now().year)[2:]  # 25 для 2025
+        current_year = str(datetime.now().year)[2:]  
         last_user = User.objects.filter(username__startswith=current_year).order_by('-username').first()
         
         if last_user:
@@ -109,7 +132,7 @@ class CustomUserCreationForm(forms.ModelForm):
         return user
 
 
-class UserEditForm(forms.ModelForm):
+class UserEditForm(UserChangeForm):
     full_name = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={
@@ -122,7 +145,9 @@ class UserEditForm(forms.ModelForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Должность'
-        })
+        }),
+        label='Должность',
+        required=False
     )
     role = forms.ChoiceField(
         choices=User.ROLE_CHOICES,
@@ -151,7 +176,31 @@ class UserEditForm(forms.ModelForm):
             'placeholder': 'Телефон'
         })
     )
+    proxy_number = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Номер доверенности'
+        }),
+        label='Номер доверенности',
+        required=False
+    )
+    proxy_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date',
+            'placeholder': 'Дата доверенности',
+            'id': 'proxy_date'
+        }, format='%Y-%m-%d'),
+        label='Дата доверенности',
+        required=False
+    )
 
     class Meta:
         model = User
-        fields = ('full_name', 'position', 'role', 'email', 'iin', 'phone_number') 
+        fields = ('full_name', 'position', 'email', 'role', 'iin', 'phone_number', 'proxy_number', 'proxy_date')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['proxy_number'].required = False
+        self.fields['proxy_date'].required = False 

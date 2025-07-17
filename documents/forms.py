@@ -30,8 +30,20 @@ class GPHContractForm(forms.Form):
     )
     
     end_date = forms.DateField(
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        label='Дата окончания оказания услуг'
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        }),
+        label='Дата окончания'
+    )
+    signer = forms.ModelChoiceField(
+        queryset=User.objects.filter(role=2),
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'signer'
+        }),
+        label='Подписант',
+        required=True
     )
 
 class ActForm(forms.Form):

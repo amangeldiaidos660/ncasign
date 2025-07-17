@@ -18,6 +18,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, verbose_name='Email')
     iin = models.CharField(max_length=12, verbose_name='ИИН', blank=True, null=True)
     phone_number = models.CharField(max_length=20, verbose_name='Телефон', blank=True, null=True)
+    proxy_number = models.CharField(max_length=50, blank=True, null=True, verbose_name='Номер доверенности')
+    proxy_date = models.DateField(blank=True, null=True, verbose_name='Дата доверенности')
     
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name', 'position']

@@ -4,67 +4,15 @@
 
 {% block documents_content %}
 <div class="row">
-    <div class="col-12">
-        <a href="{% url 'documents:gph_create' %}" class="btn btn-primary mb-3">
-            <i class="fas fa-plus me-2"></i>Создать новый ГПХ
+    <div class="col-12 position-relative py-5">
+        <a href="{% url 'documents:gph_create' %}" class="btn btn-primary position-absolute top-0 start-0 m-3">
+            <i class="fas fa-file-contract me-2"></i>Создать ГПХ
         </a>
-        {% if docs %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>ФИО исполнителя</th>
-                        <th>Пользователь</th>
-                        <th>Дата начала</th>
-                        <th>Дата окончания</th>
-                        <th>Создан</th>
-                        <th>Согласующие</th>
-                        <th>Файл</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for doc in docs %}
-                    <tr>
-                        <td>{{ doc.doc_id }}</td>
-                        <td>{{ doc.full_name }}</td>
-                        <td>{{ doc.user.username }}</td>
-                        <td>{{ doc.start_date }}</td>
-                        <td>{{ doc.end_date }}</td>
-                        <td>{{ doc.created_at|date:'d.m.Y H:i:s' }}</td>
-                        <td>
-                            {% if doc.approvers %}
-                                <ul class="mb-0 ps-3">
-                                {% for appr in doc.approvers %}
-                                    <li>{{ appr.full_name }} ({{ appr.username }}) —
-                                        <span class="badge 
-                                            {% if appr.status == 'согласовано' %}bg-success
-                                            {% elif appr.status == 'отклонено' %}bg-danger
-                                            {% else %}bg-secondary{% endif %}">
-                                            {{ appr.status }}
-                                        </span>
-                                    </li>
-                                {% endfor %}
-                                </ul>
-                            {% else %}
-                                <span class="text-muted">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if doc.file_path %}
-                                <a href="{{ doc.file_path }}" target="_blank" class="btn btn-sm btn-outline-primary">Открыть</a>
-                            {% else %}
-                                <span class="text-muted">—</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="text-center">
+            <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted mt-4">ГПХ договоры не найдены</h5>
+            <p class="text-muted">Пока пусто</p>
         </div>
-        {% else %}
-            <p>Документы не найдены.</p>
-        {% endif %}
     </div>
 </div>
 {% endblock %} 

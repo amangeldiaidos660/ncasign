@@ -64,6 +64,18 @@
                 <label for="id_phone_number" class="form-label">Телефон</label>
                 {{ form.phone_number }}
             </div>
+            <div class="mb-3" id="proxy-fields" {% if not form.role.value or form.role.value|stringformat:"s" != '2' %}style="display: none;"{% endif %}>
+                {{ form.proxy_number.label_tag }}
+                {{ form.proxy_number }}
+                {% if form.proxy_number.errors %}
+                    <div class="text-danger small">{{ form.proxy_number.errors.0 }}</div>
+                {% endif %}
+                {{ form.proxy_date.label_tag }}
+                {{ form.proxy_date }}
+                {% if form.proxy_date.errors %}
+                    <div class="text-danger small">{{ form.proxy_date.errors.0 }}</div>
+                {% endif %}
+            </div>
             <div class="d-flex gap-3">
                 <button type="submit" class="btn btn-submit">
                     <i class="fas fa-save me-2"></i>Сохранить изменения
@@ -75,4 +87,25 @@
         </form>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var roleSelect = document.getElementById('id_role');
+    var proxyFields = document.getElementById('proxy-fields');
+    function toggleProxyFields() {
+        if (roleSelect.value == '2') {
+            proxyFields.style.display = '';
+        } else {
+            proxyFields.style.display = 'none';
+            // Очищаем значения, если скрываем
+            document.getElementById('id_proxy_number').value = '';
+            document.getElementById('id_proxy_date').value = '';
+        }
+    }
+    if (roleSelect && proxyFields) {
+        roleSelect.addEventListener('change', toggleProxyFields);
+        toggleProxyFields();
+    }
+});
+</script> 

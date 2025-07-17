@@ -178,12 +178,12 @@
 <ul class="nav nav-tabs" id="adminTabs" role="tablist">
     {% if request.user.role == 1 or request.user.role == 5 %}
     <li class="nav-item" role="presentation">
-        <a class="nav-link {% if request.resolver_match.url_name == 'gph_list' %}active{% endif %}" href="{% url 'documents:gph_list' %}">
+        <a class="nav-link {% if request.resolver_match.url_name in 'gph_list gph_create gph_edit' %}active{% endif %}" href="{% url 'documents:gph_list' %}">
             <i class="fas fa-file-contract me-2"></i>Создать ГПХ
         </a>
     </li>
     <li class="nav-item" role="presentation">
-        <a class="nav-link {% if request.resolver_match.url_name == 'act_list' %}active{% endif %}" href="{% url 'documents:act_list' %}">
+        <a class="nav-link {% if request.resolver_match.url_name in 'act_list act_create act_edit' %}active{% endif %}" href="{% url 'documents:act_list' %}">
             <i class="fas fa-file-alt me-2"></i>Акты
         </a>
     </li>
@@ -214,6 +214,20 @@
     </li>
     {% endif %}
 </ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="acts" role="tabpanel">
+    </div>
+    <div class="tab-pane fade" id="gph" role="tabpanel">
+    
+    </div>
+    <div class="tab-pane fade" id="history" role="tabpanel">
+       
+    </div>
+    <div class="tab-pane fade" id="create" role="tabpanel">
+       
+    </div>
+</div>
 <!-- Модальное окно уведомлений -->
 <div class="modal fade" id="notifModal" tabindex="-1" aria-labelledby="notifModalLabel" aria-hidden="true" data-bs-backdrop="false" data-bs-keyboard="true">
   <div class="modal-dialog modal-dialog-centered">

@@ -1,24 +1,16 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from ncasign.models import User
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from .models import User
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'email', 'position', 'role', 'iin', 'phone_number')
-    search_fields = ('full_name', 'email', 'iin', 'phone_number')
-    list_filter = ('role',)
-    ordering = ('full_name',)
-    
-    fieldsets = (
-        (None, {'fields': ('username', 'email', 'password')}),
-        ('Персональная информация', {'fields': ('full_name', 'position', 'role', 'iin', 'phone_number')}),
-        ('Разрешения', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Важные даты', {'fields': ('last_login', 'date_joined')}),
+class UserAdmin(BaseUserAdmin):
+    fieldsets = BaseUserAdmin.fieldsets + (
+        (None, {'fields': ('proxy_number', 'proxy_date')}),
     )
-    
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('username', 'email', 'full_name', 'position', 'role', 'iin', 'phone_number', 'password1', 'password2'),
-        }),
-    ) 
+    add_fieldsets = BaseUserAdmin.add_fieldsets + (
+        (None, {'fields': ('proxy_number', 'proxy_date')}),
+    )
+    list_display = ('username', 'full_name', 'email', 'role', 'iin', 'phone_number', 'proxy_number', 'proxy_date', 'is_active', 'is_staff', 'is_superuser')
+    search_fields = ('username', 'full_name', 'email', 'iin', 'phone_number', 'proxy_number')
+    list_filter = ('role', 'is_active', 'is_staff', 'is_superuser')
+
+admin.site.register(User, UserAdmin) 

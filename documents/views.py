@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 import json
+from ncasign.utils import get_dropbox_access_token
 
 # Универсальный декоратор для проверки ролей (копия из ncasign/views.py)
 from functools import wraps
@@ -32,9 +33,7 @@ def role_required(roles):
 @login_required
 @role_required([1, 5, 2])  # Админ, Редактор, Подписант (только просмотр)
 def gph_list(request):
-    from .models import GphDocument
-    docs = GphDocument.objects.select_related('user').order_by('-created_at')
-    return render(request, 'documents/gph_list.html', {'docs': docs})
+    return render(request, 'documents/gph_list.html')
 
 @login_required
 @role_required([1, 5, 2])  # Админ, Редактор, Подписант (только просмотр)
@@ -104,6 +103,19 @@ def gph_preview(request):
                 data['full_name'] = executor.full_name
             except User.DoesNotExist:
                 pass
+        signer_id = request.POST.get('signer', '')
+        signer_full_name = ''
+        proxy_number = ''
+        proxy_date = ''
+        if signer_id:
+            User = get_user_model()
+            try:
+                signer = User.objects.get(username=signer_id, role=2)
+                signer_full_name = signer.full_name
+                proxy_number = signer.proxy_number or ''
+                proxy_date = signer.proxy_date.strftime('%d.%m.%Y') if signer.proxy_date else ''
+            except User.DoesNotExist:
+                pass
         try:
             template_path = os.path.join(settings.BASE_DIR, 'static', 'docs', 'gph.docx')
             if os.path.exists(template_path):
@@ -116,6 +128,9 @@ def gph_preview(request):
                     text = text.replace('{{start_date}}', f'<strong>{data["start_date"]}</strong>' if data['start_date'] else '')
                     text = text.replace('{{end_date}}', f'<strong>{data['end_date']}</strong>' if data['end_date'] else '')
                     text = text.replace('{{nca_datas}}', '<strong>Данные подписи НУЦ</strong>')
+                    text = text.replace('{{signer}}', f'<strong>{signer_full_name}</strong>' if signer_full_name else '')
+                    text = text.replace('{{signer_num}}', f'<strong>{proxy_number}</strong>' if proxy_number else '')
+                    text = text.replace('{{signer_date}}', f'<strong>{proxy_date}</strong>' if proxy_date else '')
                     return text
                 for paragraph in doc.paragraphs:
                     paragraph.text = replace_placeholders(paragraph.text)
@@ -292,16 +307,11 @@ def gph_save(request):
                     'full_name': appr['full_name'],
                     'status': 'ожидание'
                 })
-            # Подписант
-            try:
-                signer = User.objects.get(username='250003')
-                signer_full_name = signer.full_name
-            except Exception:
-                signer_full_name = 'Подписант'
+            signer = data['signer']
             actions.append({
                 'role': 'signer',
-                'username': '250003',
-                'full_name': signer_full_name,
+                'username': signer.username,
+                'full_name': signer.full_name,
                 'status': 'ожидание'
             })
             actions.append({
@@ -318,7 +328,6 @@ def gph_save(request):
                 start_date=start_date,
                 end_date=end_date,
                 file_path='',  # временно
-                approvers=approvers,
                 actions=actions
             )
             doc_id = document.doc_id
@@ -331,10 +340,13 @@ def gph_save(request):
                 text = text.replace('{{full_name}}', user.full_name)
                 text = text.replace('{{doc_id}}', doc_id)
                 text = text.replace('{{year}}', str(document.created_at.year))
-                text = text.replace('{{current_date}}', document.created_at.strftime('%d.%m.%Y %H:%M:%S'))
-                text = text.replace('{{start_date}}', str(start_date))
-                text = text.replace('{{end_date}}', str(end_date))
+                text = text.replace('{{current_date}}', document.created_at.strftime('%d.%m.%Y'))
+                text = text.replace('{{start_date}}', start_date.strftime('%d.%m.%Y'))
+                text = text.replace('{{end_date}}', end_date.strftime('%d.%m.%Y'))
                 text = text.replace('{{nca_datas}}', 'Данные подписи НУЦ')
+                text = text.replace('{{signer}}', signer.full_name)
+                text = text.replace('{{signer_num}}', signer.proxy_number or '')
+                text = text.replace('{{signer_date}}', signer.proxy_date.strftime('%d.%m.%Y') if signer.proxy_date else '')
                 return text
             for paragraph in doc.paragraphs:
                 paragraph.text = replace_placeholders(paragraph.text)
@@ -348,7 +360,8 @@ def gph_save(request):
             doc.save(file_stream)
             file_stream.seek(0)
             # 4. Загружаем в Dropbox
-            dbx = dropbox.Dropbox(settings.DROPBOX_TOKEN)
+            access_token = get_dropbox_access_token()
+            dbx = dropbox.Dropbox(access_token)
             dropbox_folder = f"/ncasign/{user.username}/"
             dropbox_filename = f"ГПХ-{user.username}-{document.created_at.strftime('%Y%m%d-%H%M%S')}.docx"
             dropbox_path = dropbox_folder + dropbox_filename
@@ -367,27 +380,7 @@ def gph_save(request):
 @login_required
 @role_required([1, 5, 2])  # Админ, редактор, подписант (только просмотр)
 def act_list(request):
-    # Получаем все акты
-    acts = ActDocument.objects.select_related('user', 'gph_document').order_by('-created_at')
-    
-    # Получаем все пакеты
-    packages = ActPackage.objects.select_related('created_by').order_by('-created_at')
-    
-    # Создаем словарь для быстрого поиска актов в пакетах
-    acts_in_packages = {}
-    for package in packages:
-        for act_id in package.acts:
-            acts_in_packages[act_id] = package.package_id
-    
-    # Добавляем информацию о пакете к каждому акту
-    for act in acts:
-        act.package_id = acts_in_packages.get(act.act_id)
-    
-    return render(request, 'documents/act_list.html', {
-        'acts': acts,
-        'packages': packages,
-        'acts_in_packages': acts_in_packages
-    })
+    return render(request, 'documents/act_list.html')
 
 @login_required
 @role_required([1, 5])  # Только Админ и Редактор могут скачивать акты
@@ -636,7 +629,8 @@ def act_save(request):
             file_stream.seek(0)
             
             # 4. Загружаем в Dropbox
-            dbx = dropbox.Dropbox(settings.DROPBOX_TOKEN)
+            access_token = get_dropbox_access_token()
+            dbx = dropbox.Dropbox(access_token)
             dropbox_folder = f"/ncasign/{user.username}/"
             dropbox_filename = f"Акт-{user.username}-{document.created_at.strftime('%Y%m%d-%H%M%S')}.docx"
             dropbox_path = dropbox_folder + dropbox_filename
@@ -743,7 +737,6 @@ def add_act_to_package(request):
                 unit_price=data['unit_price'],
                 amount=amount,
                 file_path='',  # временно
-                approvers=approvers,
                 actions=actions
             )
             
@@ -781,7 +774,8 @@ def add_act_to_package(request):
                 doc.save(file_stream)
                 file_stream.seek(0)
                 
-                dbx = dropbox.Dropbox(settings.DROPBOX_TOKEN)
+                access_token = get_dropbox_access_token()
+                dbx = dropbox.Dropbox(access_token)
                 dropbox_folder = f"/ncasign/{user.username}/"
                 dropbox_filename = f"Акт-{user.username}-{document.created_at.strftime('%Y%m%d-%H%M%S')}.docx"
                 dropbox_path = dropbox_folder + dropbox_filename
@@ -894,234 +888,3 @@ def get_package_info(request):
         'package_count': len(package_acts),
         'acts': package_acts
     })
-
-@login_required
-@require_GET
-def api_pending_approvals(request):
-    """
-    Возвращает структуру:
-    {
-      gph: [...],
-      acts: [...],
-      packages: [ ... ]
-    }
-    Для всех участников процесса: согласующий, подписант, исполнитель (статус 'ожидание').
-    """
-    user = request.user
-    gph = []
-    acts = []
-    packages = []
-    # ГПХ
-    for doc in GphDocument.objects.all():
-        for a in doc.actions:
-            if a.get('username') == user.username and a.get('status') == 'ожидание':
-                gph.append({
-                    'doc_id': doc.doc_id,
-                    'type': 'gph',
-                    'full_name': doc.full_name,
-                    'created_at': doc.created_at.strftime('%d.%m.%Y %H:%M'),
-                    'status': a.get('status'),
-                    'actions': doc.actions,
-                })
-                break
-    # Одиночные акты (не в пакетах)
-    acts_in_packages = set()
-    for package in ActPackage.objects.all():
-        acts_in_packages.update(package.acts)
-    for act in ActDocument.objects.all():
-        if act.act_id in acts_in_packages:
-            continue
-        for a in act.actions:
-            if a.get('username') == user.username and a.get('status') == 'ожидание':
-                acts.append({
-                    'act_id': act.act_id,
-                    'type': 'act',
-                    'full_name': act.full_name,
-                    'created_at': act.created_at.strftime('%d.%m.%Y %H:%M'),
-                    'status': a.get('status'),
-                    'actions': act.actions,
-                })
-                break
-    # Пакеты
-    for package in ActPackage.objects.all():
-        package_acts = []
-        for act_id in package.acts:
-            try:
-                act = ActDocument.objects.get(act_id=act_id)
-            except ActDocument.DoesNotExist:
-                continue
-            for a in act.actions:
-                if a.get('username') == user.username and a.get('status') == 'ожидание':
-                    package_acts.append({
-                        'act_id': act.act_id,
-                        'full_name': act.full_name,
-                        'created_at': act.created_at.strftime('%d.%m.%Y %H:%M'),
-                        'status': a.get('status'),
-                        'actions': act.actions,
-                    })
-                    break
-        if package_acts:
-            packages.append({
-                'package_id': package.package_id,
-                'created_at': package.created_at.strftime('%d.%m.%Y %H:%M'),
-                'status': package.status,
-                'acts': package_acts,
-                'actions': [act['actions'] for act in package_acts if 'actions' in act]
-            })
-    return JsonResponse({'success': True, 'gph': gph, 'acts': acts, 'packages': packages})
-
-@login_required
-@require_GET
-def api_user_history(request):
-    """
-    Возвращает структуру:
-    {
-      gph: [...],
-      acts: [...],
-      packages: [ { package_id, created_at, status, acts: [ ... ] } ]
-    }
-    Для всех участников процесса: если пользователь есть в actions, он видит документ в истории.
-    """
-    user = request.user
-    gph = []
-    acts = []
-    packages = []
-    # ГПХ
-    for doc in GphDocument.objects.all():
-        for a in doc.actions:
-            if a.get('username') == user.username:
-                gph.append({
-                    'doc_id': doc.doc_id,
-                    'type': 'gph',
-                    'full_name': doc.full_name,
-                    'created_at': doc.created_at.strftime('%d.%m.%Y %H:%M'),
-                    'file_path': doc.file_path,
-                    'status': a.get('status'),
-                    'actions': doc.actions,
-                })
-                break
-    # Одиночные акты (не в пакетах)
-    acts_in_packages = set()
-    for package in ActPackage.objects.all():
-        acts_in_packages.update(package.acts)
-    for act in ActDocument.objects.all():
-        if act.act_id in acts_in_packages:
-            continue
-        for a in act.actions:
-            if a.get('username') == user.username:
-                acts.append({
-                    'act_id': act.act_id,
-                    'type': 'act',
-                    'full_name': act.full_name,
-                    'created_at': act.created_at.strftime('%d.%m.%Y %H:%M'),
-                    'file_path': act.file_path,
-                    'status': a.get('status'),
-                    'actions': act.actions,
-                })
-                break
-    # Пакеты
-    for package in ActPackage.objects.all():
-        package_acts = []
-        for act_id in package.acts:
-            try:
-                act = ActDocument.objects.get(act_id=act_id)
-            except ActDocument.DoesNotExist:
-                continue
-            for a in act.actions:
-                if a.get('username') == user.username:
-                    package_acts.append({
-                        'act_id': act.act_id,
-                        'full_name': act.full_name,
-                        'created_at': act.created_at.strftime('%d.%m.%Y %H:%M'),
-                        'file_path': act.file_path,
-                        'status': a.get('status'),
-                        'actions': act.actions,
-                    })
-                    break
-        if package_acts:
-            packages.append({
-                'package_id': package.package_id,
-                'created_at': package.created_at.strftime('%d.%m.%Y %H:%M'),
-                'status': package.status,
-                'acts': package_acts,
-                'actions': [act['actions'] for act in package_acts if 'actions' in act]
-            })
-    return JsonResponse({'success': True, 'gph': gph, 'acts': acts, 'packages': packages})
-
-@csrf_exempt
-@login_required
-def api_approve_action(request):
-    """
-    POST: {doc_type: 'gph'|'act', doc_id: '...', is_approve: true|false}
-    Обновляет статус участника (approver, signer, executor) в actions (и approvers для согласующих).
-    """
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'Только POST'})
-    try:
-        data = json.loads(request.body.decode('utf-8'))
-        doc_type = data.get('doc_type')
-        doc_id = data.get('doc_id')
-        is_approve = data.get('is_approve')
-        user = request.user
-        # Находим документ
-        if doc_type == 'gph':
-            doc = GphDocument.objects.get(doc_id=doc_id)
-        elif doc_type == 'act':
-            doc = ActDocument.objects.get(act_id=doc_id)
-        else:
-            return JsonResponse({'success': False, 'error': 'Неверный тип документа'})
-        # Обновляем actions
-        updated = False
-        for a in doc.actions:
-            if a.get('username') == user.username and a.get('status') == 'ожидание':
-                if a['role'] == 'approver':
-                    a['status'] = 'согласовано' if is_approve else 'отклонено'
-                elif a['role'] == 'signer':
-                    a['status'] = 'подписано' if is_approve else 'отклонено'
-                elif a['role'] == 'executor':
-                    a['status'] = 'подписано' if is_approve else 'отклонено'
-                updated = True
-        # Для согласующих — обновляем и в approvers
-        if hasattr(doc, 'approvers'):
-            for appr in doc.approvers:
-                if appr.get('username') == user.username and appr.get('status') == 'ожидание':
-                    appr['status'] = 'согласовано' if is_approve else 'отклонено'
-        if updated:
-            doc.save()
-            return JsonResponse({'success': True})
-        else:
-            return JsonResponse({'success': False, 'error': 'Нет прав или уже согласовано/подписано'})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-
-@login_required
-@require_POST
-def api_approve_package(request):
-    """
-    POST: {package_id: '...', is_approve: true|false}
-    Согласует/подписывает все акты в пакете для текущего пользователя (если статус 'ожидание').
-    """
-    data = json.loads(request.body.decode('utf-8'))
-    package_id = data.get('package_id')
-    is_approve = data.get('is_approve')
-    user = request.user
-    try:
-        package = ActPackage.objects.get(package_id=package_id)
-    except ActPackage.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Пакет не найден'})
-    updated = False
-    for act_id in package.acts:
-        try:
-            act = ActDocument.objects.get(act_id=act_id)
-        except ActDocument.DoesNotExist:
-            continue
-        for a in act.actions:
-            if a.get('username') == user.username and a.get('status') == 'ожидание':
-                if a['role'] == 'approver':
-                    a['status'] = 'согласовано' if is_approve else 'отклонено'
-                elif a['role'] == 'signer':
-                    a['status'] = 'подписано' if is_approve else 'отклонено'
-                updated = True
-        if updated:
-            act.save()
-    return JsonResponse({'success': True})
