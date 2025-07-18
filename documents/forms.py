@@ -62,6 +62,26 @@ class ActForm(forms.Form):
         
         self.fields['executor'].choices = choices
     
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Проверяем, есть ли данные работ в запросе
+        if hasattr(self, 'data') and 'works' in self.data:
+            try:
+                import json
+                works = json.loads(self.data.get('works', '[]'))
+                if works:
+                    # Если есть работы, то поля формы могут быть пустыми
+                    return cleaned_data
+            except (json.JSONDecodeError, TypeError):
+                pass
+        
+        # Если нет работ, проверяем обязательные поля
+        if not cleaned_data.get('text') and not cleaned_data.get('works'):
+            raise forms.ValidationError("Необходимо заполнить наименование работ или добавить услуги")
+        
+        return cleaned_data
+    
     executor = forms.ChoiceField(
         label='Исполнитель',
         required=False,
@@ -133,13 +153,13 @@ class ActForm(forms.Form):
     text = forms.CharField(
         label='Наименование работ (услуг)',
         max_length=255,
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Описание услуги/работы'})
     )
     unit = forms.CharField(
         label='Единица измерения',
         max_length=50,
-        required=True,
+        required=False,
         initial='месяц',
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'месяц'})
     )

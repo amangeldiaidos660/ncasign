@@ -422,48 +422,51 @@ td, th {
 						</p>
 					</td>
 				</tr>
+				<!-- Динамические строки работ -->
+				{% for work in works %}
 				<tr>
 					<td style="width:31.7pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">1</span>
+							<span style="font-family:Calibri">{{forloop.counter}}</span>
 						</p>
 					</td>
 					<td style="width:178.85pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">{{text}}</span>
+							<span style="font-family:Calibri">{{work.text}}</span>
 						</p>
 					</td>
 					<td style="width:67.15pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">{{start_date}} – {{end_date}} г.</span>
+							<span style="font-family:Calibri">{{work.start_date}} – {{work.end_date}} г.</span>
 						</p>
 					</td>
 					<td style="width:152.2pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">{{additional_text}}</span>
+							<span style="font-family:Calibri">{{work.additional_text}}</span>
 						</p>
 					</td>
 					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">{{unit}}</span>
+							<span style="font-family:Calibri">{{work.unit}}</span>
 						</p>
 					</td>
 					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">{{quantity}}</span>
+							<span style="font-family:Calibri">{{work.quantity}}</span>
 						</p>
 					</td>
 					<td style="width:65.45pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">{{sum}}</span>
+							<span style="font-family:Calibri">{{work.sum}}</span>
 						</p>
 					</td>
 					<td style="width:72.55pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">{{amount}}</span>
+							<span style="font-family:Calibri">{{work.amount}}</span>
 						</p>
 					</td>
 				</tr>
+				{% endfor %}
 				<tr>
 					<td style="width:31.7pt; padding:0pt 5.4pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
@@ -492,12 +495,12 @@ td, th {
 					</td>
 					<td style="width:51.3pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">{{res_quantitu}}</span>
+							<span style="font-family:Calibri">{{res_quantity}}</span>
 						</p>
 					</td>
 					<td style="width:65.45pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">
 						<p style="line-height:115%; font-size:9pt">
-							<span style="font-family:Calibri">X</span>
+							<span style="font-family:Calibri">{{res_sum}}</span>
 						</p>
 					</td>
 					<td style="width:72.55pt; border:0.75pt solid #000000; padding:0pt 5.03pt; vertical-align:top">

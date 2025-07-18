@@ -31,13 +31,23 @@
         .text-left {
             text-align: left;
         }
+        .text-right {
+            text-align: right;
+        }
         .executor-col {
             max-width: 120px;
             word-break: break-word;
         }
         .description-col {
-            max-width: 150px;
+            max-width: 200px;
             word-break: break-word;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+        .total-row td {
+            border-top: 2px solid #000;
         }
     </style>
 </head>
@@ -54,20 +64,22 @@
                 <th>Цена</th>
                 <th>Стоимость</th>
                 <th>С НДС</th>
+                <th>Итого</th>
             </tr>
         </thead>
         <tbody>
             {% for act in acts %}
-            <tr>
+            <tr {% if act.description == 'Итого по акту:' %}class="total-row"{% endif %}>
                 <td>{{ act.act_id }}</td>
                 <td>{{ act.date }}</td>
                 <td>{{ act.gph_id }}</td>
                 <td class="text-left executor-col">{{ act.executor }}</td>
                 <td class="text-left description-col">{{ act.description }}</td>
-                <td>{{ act.quantity }}</td>
-                <td>{{ act.unit_price }}</td>
-                <td>{{ act.amount }}</td>
-                <td>{{ act.nds_amount }}</td>
+                <td class="text-right">{{ act.quantity }}</td>
+                <td class="text-right">{{ act.unit_price }}</td>
+                <td class="text-right">{{ act.amount }}</td>
+                <td class="text-right">{{ act.nds_amount }}</td>
+                <td class="text-right">{{ act.total_amount }}</td>
             </tr>
             {% endfor %}
         </tbody>

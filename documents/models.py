@@ -67,19 +67,28 @@ class ActDocument(models.Model):
     full_name = models.CharField(max_length=255, verbose_name='ФИО исполнителя')
     phone_number = models.CharField(max_length=20, verbose_name='Номер телефона')
     iin = models.CharField(max_length=12, verbose_name='ИИН')
-    start_date = models.DateField(verbose_name='Дата начала работ')
-    end_date = models.DateField(verbose_name='Дата окончания работ')
-    quantity = models.CharField(max_length=50, verbose_name='Количество')
-    unit_price = models.CharField(max_length=50, verbose_name='Цена за единицу')
-    amount = models.CharField(max_length=50, verbose_name='Общая стоимость')
+    # Основные даты акта (могут быть общими для всех работ)
+    start_date = models.DateField(verbose_name='Дата начала работ', null=True, blank=True)
+    end_date = models.DateField(verbose_name='Дата окончания работ', null=True, blank=True)
+    # Массив работ/услуг
+    works = models.JSONField(default=list, verbose_name='Список работ/услуг')
+    # Итоговые суммы
+    total_quantity = models.CharField(max_length=50, verbose_name='Общее количество', default='0')
+    total_sum = models.CharField(max_length=50, verbose_name='Общая цена за единицу', default='0')
+    total_amount = models.CharField(max_length=50, verbose_name='Общая стоимость', default='0')
     file_path = models.CharField(max_length=255, verbose_name='Публичная ссылка на файл')
     actions = models.JSONField(default=list, verbose_name='Этапы согласования и подписания')
     attachments = models.JSONField(default=list, blank=True, verbose_name='Вложения')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
-    text = models.CharField(max_length=255, verbose_name='Наименование работ (услуг)', default='')
-    unit = models.CharField(max_length=50, verbose_name='Единица измерения', default='месяц')
-    additional_text = models.CharField(max_length=255, verbose_name='Сведения об отчете', blank=True, default='')
+    
+    # Оставляем старые поля для обратной совместимости (deprecated)
+    quantity = models.CharField(max_length=50, verbose_name='Количество (устарело)', default='', blank=True)
+    unit_price = models.CharField(max_length=50, verbose_name='Цена за единицу (устарело)', default='', blank=True)
+    amount = models.CharField(max_length=50, verbose_name='Общая стоимость (устарело)', default='', blank=True)
+    text = models.CharField(max_length=255, verbose_name='Наименование работ (устарело)', default='', blank=True)
+    unit = models.CharField(max_length=50, verbose_name='Единица измерения (устарело)', default='', blank=True)
+    additional_text = models.CharField(max_length=255, verbose_name='Сведения об отчете (устарело)', blank=True, default='')
     
     class Meta:
         verbose_name = 'Акт выполненных работ'

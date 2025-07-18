@@ -149,6 +149,13 @@
                 <label for="{{ form.quantity.id_for_label }}" class="form-label">{{ form.quantity.label }}</label>
                 {{ form.quantity }}
             </div>
+            
+            <!-- Кнопка добавления услуги -->
+            <div class="form-group">
+                <button type="button" class="btn btn-outline-success w-100" id="addServiceBtn">
+                    <i class="fas fa-plus me-2"></i>Добавить услугу и очистить поля
+                </button>
+            </div>
             <div class="form-group">
                 <label class="form-label">Согласующие</label>
                 <div id="approvers-list"></div>
@@ -230,6 +237,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('quantity-input');
     const unitPriceInput = document.getElementById('unit-price-input');
     
+    // --- Управление услугами ---
+    let services = []; // Массив добавленных услуг
+    console.log('Инициализация: services =', services);
+    
     // --- Согласующие ---
     const approversSelect = document.getElementById('id_approvers');
     const approversListDiv = document.getElementById('approvers-list');
@@ -245,6 +256,18 @@ document.addEventListener('DOMContentLoaded', function() {
     approversSelect.style.display = 'none';
     }
     let selectedApprovers = [];
+    
+    // Функция для дебаунсинга обновления предпросмотра
+    let updatePreviewTimeout;
+    function debouncedUpdatePreview() {
+        console.log('debouncedUpdatePreview вызвана');
+        clearTimeout(updatePreviewTimeout);
+        updatePreviewTimeout = setTimeout(() => {
+            console.log('debouncedUpdatePreview: вызываем updatePreview');
+            updatePreview();
+        }, 300);
+    }
+    
     function renderApproversList() {
         approversListDiv.innerHTML = '';
         selectedApprovers.forEach((appr, idx) => {
@@ -260,7 +283,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 opt.selected = selectedApprovers.some(appr => appr.username === opt.value);
             });
         }
-        updatePreview();
+        // Проверяем, что services инициализирован перед вызовом
+        if (typeof services === 'undefined') {
+            console.log('services не определен, инициализируем как пустой массив');
+            services = [];
+        }
+        debouncedUpdatePreview();
     }
     if (addApproverBtn) {
         addApproverBtn.addEventListener('click', function() {
@@ -309,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Для подписанта ничего не нужно, select всегда один, просто выбранный option
     });
     // При загрузке страницы
+    console.log('Вызываем renderApproversList...');
     renderApproversList();
     
     // Автоматическое заполнение данных при выборе исполнителя
@@ -329,51 +358,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 iinInput.value = '';
             }
             // Запускаем обновление предпросмотра
-            updatePreview();
+            debouncedUpdatePreview();
         });
     }
     
 
     
-    // Функция для обновления предпросмотра
-    function updatePreview() {
-        const formData = new FormData(form);
-        
-        fetch('{% url "documents:act_preview" %}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                previewContent.innerHTML = data.preview_html;
-            } else {
-                console.error('Ошибка обновления предпросмотра:', data.error);
-                previewContent.innerHTML = `<div class="alert alert-danger">Ошибка: ${data.error}</div>`;
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка запроса:', error);
-            previewContent.innerHTML = `<div class="alert alert-danger">Ошибка сети: ${error.message}</div>`;
-        });
-    }
+
     
+
     // Обновляем предпросмотр при изменении любого поля
     inputs.forEach(input => {
         input.addEventListener('input', function() {
-            updatePreview();
+            debouncedUpdatePreview();
         });
         
         input.addEventListener('change', function() {
-            updatePreview();
+            debouncedUpdatePreview();
         });
         
         input.addEventListener('blur', function() {
-            updatePreview();
+            debouncedUpdatePreview();
         });
     });
     
@@ -392,17 +397,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (quantityInput && unitPriceInput) {
         quantityInput.addEventListener('input', function() {
             calculateTotalAmount();
-            updatePreview();
+            debouncedUpdatePreview();
         });
         
         unitPriceInput.addEventListener('input', function() {
             calculateTotalAmount();
-            updatePreview();
+            debouncedUpdatePreview();
         });
     }
     
     // Загружаем начальный предпросмотр
     function loadInitialPreview() {
+        console.log('loadInitialPreview вызвана');
         fetch('{% url "documents:act_preview" %}', {
             method: 'GET',
             headers: {
@@ -423,6 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Загружаем начальный предпросмотр
+    console.log('Вызываем loadInitialPreview...');
     loadInitialPreview();
     
     // --- Функции для работы с пакетами ---
@@ -460,6 +467,74 @@ document.addEventListener('DOMContentLoaded', function() {
         addToPackageBtn.addEventListener('click', function() {
             const formData = new FormData(document.getElementById('actForm'));
             
+            // Добавляем данные из массива services в FormData
+            console.log('Добавляем в пакет, services:', services);
+            
+            // Собираем все данные для сохранения
+            let allWorksData = [];
+            
+            // Добавляем данные из массива services
+            if (services.length > 0) {
+                console.log('Добавляем данные из массива services');
+                allWorksData = services.map(service => ({
+                    text: service.text || '',
+                    start_date: service.start_date || '',
+                    end_date: service.end_date || '',
+                    additional_text: service.additional_text || '',
+                    unit: service.unit || 'месяц',
+                    quantity: service.quantity || '',
+                    sum: service.unit_price || '',
+                    amount: service.amount || ''
+                }));
+            }
+            
+            // Проверяем, есть ли данные в текущей форме
+            const textEl = document.getElementById('id_text');
+            const unitEl = document.getElementById('id_unit');
+            const additionalTextEl = document.getElementById('id_additional_text');
+            const startDateEl = document.getElementById('start-date-input');
+            const endDateEl = document.getElementById('end-date-input');
+            const quantityEl = document.getElementById('quantity-input');
+            const unitPriceEl = document.getElementById('unit-price-input');
+            const vatIncludedEl = document.getElementById('id_vat_included');
+            
+            const currentFormData = {
+                text: textEl ? textEl.value : '',
+                start_date: startDateEl ? startDateEl.value : '',
+                end_date: endDateEl ? endDateEl.value : '',
+                additional_text: additionalTextEl ? additionalTextEl.value : '',
+                unit: unitEl ? unitEl.value : 'месяц',
+                quantity: quantityEl ? quantityEl.value : '',
+                sum: unitPriceEl ? unitPriceEl.value : '',
+                amount: ''
+            };
+            
+            // Рассчитываем сумму для текущей формы
+            const quantity = parseFloat(quantityEl ? quantityEl.value : 0) || 0;
+            const unitPrice = parseFloat(unitPriceEl ? unitPriceEl.value : 0) || 0;
+            const amount = quantity * unitPrice;
+            
+            if (amount > 0) {
+                if (vatIncludedEl && vatIncludedEl.checked) {
+                    const amountVat = amount * 1.12;
+                    currentFormData.amount = `${amount.toFixed(2)} (с НДС: ${amountVat.toFixed(2)})`;
+                } else {
+                    currentFormData.amount = amount.toFixed(2);
+                }
+            }
+            
+            // Если в текущей форме есть данные, добавляем их
+            if (currentFormData.text || currentFormData.quantity || currentFormData.unit_price || 
+                currentFormData.start_date || currentFormData.end_date || currentFormData.additional_text) {
+                console.log('Добавляем данные из текущей формы');
+                allWorksData.push(currentFormData);
+            }
+            
+            console.log('Все данные для добавления в пакет:', allWorksData);
+            
+            // Добавляем данные в FormData
+            formData.append('works', JSON.stringify(allWorksData));
+            
             showLoader();
             fetch('/documents/acts/add-to-package/', {
                 method: 'POST',
@@ -476,6 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(data.message);
                     // Очищаем форму для следующего акта
                     document.getElementById('actForm').reset();
+                    services = []; // Очищаем массив услуг
                     selectedApprovers = [];
                     renderApproversList();
                     loadInitialPreview();
@@ -585,6 +661,75 @@ document.addEventListener('DOMContentLoaded', function() {
     if (saveActBtn) {
         saveActBtn.addEventListener('click', function() {
             const formData = new FormData(document.getElementById('actForm'));
+            
+            // Добавляем данные из массива services в FormData
+            console.log('Сохраняем акт, services:', services);
+            
+            // Собираем все данные для сохранения
+            let allWorksData = [];
+            
+            // Добавляем данные из массива services
+            if (services.length > 0) {
+                console.log('Добавляем данные из массива services');
+                allWorksData = services.map(service => ({
+                    text: service.text || '',
+                    start_date: service.start_date || '',
+                    end_date: service.end_date || '',
+                    additional_text: service.additional_text || '',
+                    unit: service.unit || 'месяц',
+                    quantity: service.quantity || '',
+                    sum: service.unit_price || '',
+                    amount: service.amount || ''
+                }));
+            }
+            
+            // Проверяем, есть ли данные в текущей форме
+            const textEl = document.getElementById('id_text');
+            const unitEl = document.getElementById('id_unit');
+            const additionalTextEl = document.getElementById('id_additional_text');
+            const startDateEl = document.getElementById('start-date-input');
+            const endDateEl = document.getElementById('end-date-input');
+            const quantityEl = document.getElementById('quantity-input');
+            const unitPriceEl = document.getElementById('unit-price-input');
+            const vatIncludedEl = document.getElementById('id_vat_included');
+            
+            const currentFormData = {
+                text: textEl ? textEl.value : '',
+                start_date: startDateEl ? startDateEl.value : '',
+                end_date: endDateEl ? endDateEl.value : '',
+                additional_text: additionalTextEl ? additionalTextEl.value : '',
+                unit: unitEl ? unitEl.value : 'месяц',
+                quantity: quantityEl ? quantityEl.value : '',
+                sum: unitPriceEl ? unitPriceEl.value : '',
+                amount: ''
+            };
+            
+            // Рассчитываем сумму для текущей формы
+            const quantity = parseFloat(quantityEl ? quantityEl.value : 0) || 0;
+            const unitPrice = parseFloat(unitPriceEl ? unitPriceEl.value : 0) || 0;
+            const amount = quantity * unitPrice;
+            
+            if (amount > 0) {
+                if (vatIncludedEl && vatIncludedEl.checked) {
+                    const amountVat = amount * 1.12;
+                    currentFormData.amount = `${amount.toFixed(2)} (с НДС: ${amountVat.toFixed(2)})`;
+                } else {
+                    currentFormData.amount = amount.toFixed(2);
+                }
+            }
+            
+            // Если в текущей форме есть данные, добавляем их
+            if (currentFormData.text || currentFormData.quantity || currentFormData.unit_price || 
+                currentFormData.start_date || currentFormData.end_date || currentFormData.additional_text) {
+                console.log('Добавляем данные из текущей формы');
+                allWorksData.push(currentFormData);
+            }
+            
+            console.log('Все данные для сохранения:', allWorksData);
+            
+            // Добавляем данные в FormData
+            formData.append('works', JSON.stringify(allWorksData));
+            
             showLoader();
             fetch('{% url "documents:act_save" %}', {
                 method: 'POST',
@@ -619,6 +764,219 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         saveActBtn.addEventListener('click', function() {
             signerBlock.style.display = '';
+        });
+    }
+
+    // Обработчик кнопки "Добавить услугу"
+    // Новая логика: кнопка добавляет текущие данные в массив и очищает поля
+    // После этого при заполнении полей новая услуга автоматически отображается в превью
+    const addServiceBtn = document.getElementById('addServiceBtn');
+    console.log('addServiceBtn найден:', addServiceBtn);
+    if (addServiceBtn) {
+        console.log('Добавляем обработчик для кнопки "Добавить услугу"');
+        addServiceBtn.addEventListener('click', function() {
+            console.log('Кнопка "Добавить услугу" нажата!');
+            // Собираем данные из формы с проверками
+            const textEl = document.getElementById('id_text');
+            const unitEl = document.getElementById('id_unit');
+            const additionalTextEl = document.getElementById('id_additional_text');
+            const startDateEl = document.getElementById('start-date-input');
+            const endDateEl = document.getElementById('end-date-input');
+            const quantityEl = document.getElementById('quantity-input');
+            const unitPriceEl = document.getElementById('unit-price-input');
+            const vatIncludedEl = document.getElementById('id_vat_included');
+            
+            console.log('Элементы формы:', {
+                text: textEl,
+                unit: unitEl,
+                additional_text: additionalTextEl,
+                start_date: startDateEl,
+                end_date: endDateEl,
+                quantity: quantityEl,
+                unit_price: unitPriceEl,
+                vat_included: vatIncludedEl
+            });
+            
+            const serviceData = {
+                text: textEl ? textEl.value : '',
+                unit: unitEl ? unitEl.value : '',
+                additional_text: additionalTextEl ? additionalTextEl.value : '',
+                start_date: startDateEl ? startDateEl.value : '',
+                end_date: endDateEl ? endDateEl.value : '',
+                quantity: quantityEl ? quantityEl.value : '',
+                unit_price: unitPriceEl ? unitPriceEl.value : '',
+                vat_included: vatIncludedEl ? vatIncludedEl.checked : false
+            };
+            
+            console.log('Собранные данные услуги:', serviceData);
+            
+            // Проверяем, что все обязательные поля заполнены
+            if (!serviceData.text || !serviceData.quantity || !serviceData.unit_price) {
+                alert('Пожалуйста, заполните все обязательные поля: наименование работ, количество и цена за единицу');
+                console.log('Пропуск добавления - не все поля заполнены');
+                return;
+            }
+            
+            // Рассчитываем сумму
+            const quantity = parseFloat(serviceData.quantity) || 0;
+            const unitPrice = parseFloat(serviceData.unit_price) || 0;
+            const amount = quantity * unitPrice;
+            
+            if (serviceData.vat_included) {
+                const amountVat = amount * 1.12;
+                serviceData.amount = `${amount.toFixed(2)} (с НДС: ${amountVat.toFixed(2)})`;
+            } else {
+                serviceData.amount = amount.toFixed(2);
+            }
+            
+            // Добавляем услугу в массив
+            services.push(serviceData);
+            console.log('Услуга добавлена в массив. Текущий массив services:', services);
+            
+            // Сбрасываем форму с проверками
+            if (textEl) textEl.value = '';
+            if (additionalTextEl) additionalTextEl.value = '';
+            if (quantityEl) quantityEl.value = '';
+            if (unitPriceEl) unitPriceEl.value = '';
+            if (vatIncludedEl) vatIncludedEl.checked = false;
+            
+            // Обновляем предпросмотр
+            console.log('Добавлена услуга:', serviceData);
+            console.log('Всего услуг:', services);
+            console.log('Вызываем debouncedUpdatePreview...');
+            debouncedUpdatePreview();
+            
+            alert(`Услуга "${serviceData.text}" добавлена! Теперь можете заполнить поля для следующей услуги.`);
+            console.log('Обработчик кнопки "Добавить услугу" завершен');
+        });
+    } else {
+        console.error('Кнопка "Добавить услугу" не найдена!');
+    }
+
+    // Обновляем функцию updatePreview для работы с массивом услуг
+    // Новая логика: показываем все добавленные услуги + текущие данные формы (если есть)
+    function updatePreview() {
+        console.log('updatePreview вызвана, services:', services);
+        
+        // Проверяем, что services инициализирован
+        if (!Array.isArray(services)) {
+            console.error('services не является массивом:', services);
+            services = [];
+        }
+        
+        let worksData = [];
+        
+        // Собираем данные из текущей формы
+        const textEl = document.getElementById('id_text');
+        const unitEl = document.getElementById('id_unit');
+        const additionalTextEl = document.getElementById('id_additional_text');
+        const startDateEl = document.getElementById('start-date-input');
+        const endDateEl = document.getElementById('end-date-input');
+        const quantityEl = document.getElementById('quantity-input');
+        const unitPriceEl = document.getElementById('unit-price-input');
+        const vatIncludedEl = document.getElementById('id_vat_included');
+        
+        console.log('Создаем данные для предпросмотра из текущей формы');
+        
+        // Отладочная информация о найденных элементах
+        console.log('Найденные элементы формы:', {
+            textEl: textEl,
+            unitEl: unitEl,
+            additionalTextEl: additionalTextEl,
+            startDateEl: startDateEl,
+            endDateEl: endDateEl,
+            quantityEl: quantityEl,
+            unitPriceEl: unitPriceEl,
+            vatIncludedEl: vatIncludedEl
+        });
+        
+        // Рассчитываем сумму для текущей формы
+        const quantity = parseFloat(quantityEl ? quantityEl.value : 0) || 0;
+        const unitPrice = parseFloat(unitPriceEl ? unitPriceEl.value : 0) || 0;
+        const amount = quantity * unitPrice;
+        
+        let amountStr = amount > 0 ? amount.toFixed(2) : '';
+        if (vatIncludedEl && vatIncludedEl.checked && amount > 0) {
+            const amountVat = amount * 1.12;
+            amountStr = `${amount.toFixed(2)} (с НДС: ${amountVat.toFixed(2)})`;
+        }
+        
+        const currentFormData = {
+            text: textEl ? textEl.value : '',
+            start_date: startDateEl ? startDateEl.value : '',
+            end_date: endDateEl ? endDateEl.value : '',
+            additional_text: additionalTextEl ? additionalTextEl.value : '',
+            unit: unitEl ? unitEl.value : 'месяц',
+            quantity: quantityEl ? quantityEl.value : '',
+            sum: unitPriceEl ? unitPriceEl.value : '',
+            amount: amountStr
+        };
+        
+        console.log('Данные из текущей формы:', currentFormData);
+        
+        // Если есть добавленные услуги, добавляем их к worksData
+        if (services.length > 0) {
+            console.log('Добавляем данные из массива services');
+            worksData = services.map(service => ({
+                text: service.text || '',
+                start_date: service.start_date || '',
+                end_date: service.end_date || '',
+                additional_text: service.additional_text || '',
+                unit: service.unit || 'месяц',
+                quantity: service.quantity || '',
+                sum: service.unit_price || '',
+                amount: service.amount || ''
+            }));
+        }
+        
+        // Если в текущей форме есть данные (хотя бы одно поле заполнено), добавляем их
+        if (currentFormData.text || currentFormData.quantity || currentFormData.unit_price || 
+            currentFormData.start_date || currentFormData.end_date || currentFormData.additional_text) {
+            console.log('Добавляем данные из текущей формы к worksData');
+            worksData.push(currentFormData);
+        }
+        
+        // Если worksData пустой, создаем пустой элемент для отображения заголовков таблицы
+        if (worksData.length === 0) {
+            worksData = [{
+                text: '',
+                start_date: '',
+                end_date: '',
+                additional_text: '',
+                unit: 'месяц',
+                quantity: '',
+                sum: '',
+                amount: ''
+            }];
+        }
+
+        console.log('Отправляем данные для предпросмотра:', worksData);
+        console.log('JSON.stringify(worksData):', JSON.stringify(worksData));
+
+        // Создаем данные для предпросмотра
+        const formData = new FormData(form);
+        formData.append('works', JSON.stringify(worksData));
+        
+        fetch('{% url "documents:act_preview" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                previewContent.innerHTML = data.preview_html;
+            } else {
+                console.error('Ошибка обновления предпросмотра:', data.error);
+                previewContent.innerHTML = `<div class="alert alert-danger">Ошибка: ${data.error}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка запроса:', error);
+            previewContent.innerHTML = `<div class="alert alert-danger">Ошибка сети: ${error.message}</div>`;
         });
     }
 });

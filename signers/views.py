@@ -57,24 +57,94 @@ def package_docx(request, package_id):
     acts_data = []
     for act in acts:
         gph = act.gph_document
-        amount = act.amount
-        try:
-            nds = float(amount) * 1.12
-            nds_str = f'{nds:.2f}'
-        except:
-            nds_str = amount
         
-        acts_data.append({
-            'act_id': act.act_id,
-            'date': act.created_at.strftime('%d.%m.%Y'),
-            'gph_id': gph.doc_id,
-            'executor': act.full_name,
-            'description': act.text,
-            'quantity': act.quantity,
-            'unit_price': act.unit_price,
-            'amount': amount,
-            'nds_amount': nds_str
-        })
+        # Получаем данные услуг из акта
+        works = act.works if hasattr(act, 'works') and act.works else []
+        
+        # Если услуг нет, используем старые поля
+        if not works:
+            amount = act.amount
+            try:
+                nds = float(amount) * 1.12
+                nds_str = f'{nds:.2f}'
+            except:
+                nds_str = amount
+            
+            acts_data.append({
+                'act_id': act.act_id,
+                'date': act.created_at.strftime('%d.%m.%Y'),
+                'gph_id': gph.doc_id,
+                'executor': act.full_name,
+                'description': act.text,
+                'quantity': act.quantity,
+                'unit_price': act.unit_price,
+                'amount': amount,
+                'nds_amount': nds_str,
+                'total_amount': amount,
+                'total_nds': nds_str,
+                'is_first_service': True,
+                'is_last_service': True
+            })
+        else:
+            # Обрабатываем массив услуг - создаем отдельную строку для каждой услуги
+            total_amount = 0
+            
+            for i, work in enumerate(works):
+                work_desc = work.get('text', '')
+                quantity = work.get('quantity', '')
+                unit_price = work.get('sum', '')
+                amount_str = work.get('amount', '0')
+                
+                # Извлекаем сумму без НДС
+                try:
+                    if "(с НДС:" in amount_str:
+                        base_amount = float(amount_str.split(' (с НДС:')[0])
+                        nds_amount = float(amount_str.split('с НДС: ')[1].rstrip(')'))
+                    else:
+                        base_amount = float(amount_str)
+                        nds_amount = base_amount * 1.12
+                    total_amount += base_amount
+                except:
+                    base_amount = 0
+                    nds_amount = 0
+                
+                # Формируем описание услуги
+                service_description = f"{i+1}. {work_desc}"
+                
+                acts_data.append({
+                    'act_id': act.act_id if i == 0 else '',  # Показываем ID акта только в первой строке
+                    'date': act.created_at.strftime('%d.%m.%Y') if i == 0 else '',
+                    'gph_id': gph.doc_id if i == 0 else '',
+                    'executor': act.full_name if i == 0 else '',
+                    'description': service_description,
+                    'quantity': quantity,
+                    'unit_price': unit_price,
+                    'amount': f"{base_amount:.2f}",
+                    'nds_amount': f"{nds_amount:.2f}",
+                    'total_amount': '',  # Оставляем пустым для отдельных услуг
+                    'total_nds': '',  # Оставляем пустым для отдельных услуг
+                    'is_first_service': i == 0,
+                    'is_last_service': i == len(works) - 1
+                })
+            
+            # Добавляем итоговую строку для акта с несколькими услугами
+            if len(works) > 1:
+                total_nds = total_amount * 1.12
+                acts_data.append({
+                    'act_id': '',
+                    'date': '',
+                    'gph_id': '',
+                    'executor': '',
+                    'description': 'Итого по акту:',
+                    'quantity': '',
+                    'unit_price': '',
+                    'amount': '',
+                    'nds_amount': '',
+                    'total_amount': f"{total_nds:.2f}",  # Показываем сумму с НДС
+                    'total_nds': f"{total_nds:.2f}",
+                    'is_first_service': False,
+                    'is_last_service': True
+                })
     
     html_string = render_to_string('signers/package_docx_template.html', {
         'package_id': package.package_id,
