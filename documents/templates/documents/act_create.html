@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(data.message);
                     updatePackageUI(0);
                     updateSignerBlockFromServer();
-                    window.location.href = '{% url "documents:act_list" %}';
+                    window.location.href = '{% url "signers_act_list" %}';
                 } else {
                     alert(`Ошибка: ${data.error}`);
                 }
@@ -599,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideLoader();
                 if (data.success) {
                     alert(`Акт успешно сохранен! ID: ${data.act_id}`);
-                    window.location.href = '{% url "documents:act_list" %}';
+                    window.location.href = '{% url "signers_act_list" %}';
                 } else {
                     alert(`Ошибка сохранения: ${data.error}`);
                 }

@@ -178,16 +178,21 @@
 <ul class="nav nav-tabs" id="adminTabs" role="tablist">
     {% if request.user.role == 1 or request.user.role == 5 %}
     <li class="nav-item" role="presentation">
-        <a class="nav-link {% if request.resolver_match.url_name in 'gph_list gph_create gph_edit' %}active{% endif %}" href="{% url 'documents:gph_list' %}">
+        <a class="nav-link {% if request.resolver_match.url_name in 'signers_gph_list gph_create gph_edit' %}active{% endif %}" href="{% url 'signers_gph_list' %}">
             <i class="fas fa-file-contract me-2"></i>Создать ГПХ
         </a>
     </li>
     <li class="nav-item" role="presentation">
-        <a class="nav-link {% if request.resolver_match.url_name in 'act_list act_create act_edit' %}active{% endif %}" href="{% url 'documents:act_list' %}">
+        <a class="nav-link {% if request.resolver_match.url_name in 'signers_act_list act_create act_edit' %}active{% endif %}" href="{% url 'signers_act_list' %}">
             <i class="fas fa-file-alt me-2"></i>Акты
         </a>
     </li>
     {% endif %}
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {% if request.resolver_match.url_name == 'signers_wait_sign' %}active{% endif %}" href="{% url 'signers_wait_sign' %}">
+            <i class="fas fa-pen-nib me-2"></i>Ожидает подписи
+        </a>
+    </li>
     <li class="nav-item" role="presentation">
         <a id="tabProfile" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
             <i class="fas fa-user me-2"></i>Профиль

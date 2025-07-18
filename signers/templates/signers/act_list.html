@@ -1,0 +1,224 @@
+{% extends 'signers/base_signers.html' %}
+{% block signers_title %}Список актов - ncasign{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        color: white;
+    }
+    .package-row {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+    }
+    .package-header {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .package-header:hover {
+        background-color: #e9ecef;
+    }
+    .package-status {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-left: 10px;
+    }
+    .status-inprogress { background-color: #ffc107; color: #212529; }
+    .status-signed { background-color: #28a745; color: white; }
+    .status-other { background-color: #6c757d; color: white; }
+    .table-inner { background: #fff; border-radius: 8px; }
+</style>
+{% endblock %}
+
+{% block signers_content %}
+<div class="row">
+    <div class="col-12 position-relative py-5">
+        <a href="{% url 'documents:act_create' %}" class="btn btn-primary position-absolute top-0 start-0 m-3">
+            <i class="fas fa-file-alt me-2"></i>Создать акт
+        </a>
+        <div class="table-responsive mt-5">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID акта</th>
+                        <th>Исполнитель</th>
+                        <th>Статус</th>
+                        <th>Документ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for act in single_acts %}
+                    <tr>
+                        <td>{{ act.act_id }}</td>
+                        <td>{{ act.full_name }} ({{ act.user.username }})</td>
+                        <td>
+                            <ul style="list-style: disc inside; padding-left: 0; margin-bottom: 0;">
+                                {% for action in act.actions %}
+                                <li style="margin-bottom: 6px;">
+                                    <span style="font-size: 0.95em; color: #333;">{{ action.full_name }}</span>
+                                    {% if action.status == 'ожидание' %}
+                                        <span style="background:#ffc107;color:#212529;padding:2px 10px;border-radius:12px;font-size:0.82em;">ожидание</span>
+                                    {% elif action.status == 'согласовано' or action.status == 'подписано' %}
+                                        <span style="background:#28a745;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                    {% elif action.status == 'отклонено' %}
+                                        <span style="background:#dc3545;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">отклонено</span>
+                                    {% else %}
+                                        <span style="background:#6c757d;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td><a href="{{ act.file_path }}" class="btn btn-primary" target="_blank">Открыть</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted">Нет одиночных актов</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <h4 class="mb-4 mt-5">Пакеты актов</h4>
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID пакета</th>
+                        <th>Статус</th>
+                        <th>Акты</th>
+                        <th>Акты в пакете</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pkg in package_list %}
+                    <tr class="package-header" data-bs-toggle="collapse" data-bs-target="#package-{{ pkg.package.package_id }}" aria-expanded="false" aria-controls="package-{{ pkg.package.package_id }}">
+                        <td>{{ pkg.package.package_id }}</td>
+                        <td>
+                            {% if pkg.is_in_progress %}
+                                <span class="package-status status-inprogress">В процессе</span>
+                            {% else %}
+                                <span class="package-status status-signed">Завершён</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-success btn-sm open-docx-btn" data-package-id="{{ pkg.package.package_id }}">Открыть</button>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#package-{{ pkg.package.package_id }}" aria-expanded="false" aria-controls="package-{{ pkg.package.package_id }}">
+                                Показать/Скрыть
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="collapse" id="package-{{ pkg.package.package_id }}">
+                        <td colspan="3">
+                            <div class="table-inner p-2">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID акта</th>
+                                            <th>Исполнитель</th>
+                                            <th>Статус</th>
+                                            <th>Документ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for act in pkg.acts %}
+                                            <tr>
+                                                <td>{{ act.act_id }}</td>
+                                                <td>{{ act.full_name }} ({{ act.user.username }})</td>
+                                                <td>
+                                                    <ul style="list-style: disc inside; padding-left: 0; margin-bottom: 0;">
+                                                        {% for action in act.actions %}
+                                                        <li style="margin-bottom: 6px;">
+                                                            <span style="font-size: 0.95em; color: #333;">{{ action.full_name }}</span>
+                                                            {% if action.status == 'ожидание' %}
+                                                                <span style="background:#ffc107;color:#212529;padding:2px 10px;border-radius:12px;font-size:0.82em;">ожидание</span>
+                                                            {% elif action.status == 'согласовано' or action.status == 'подписано' %}
+                                                                <span style="background:#28a745;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                                            {% elif action.status == 'отклонено' %}
+                                                                <span style="background:#dc3545;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">отклонено</span>
+                                                            {% else %}
+                                                                <span style="background:#6c757d;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                                            {% endif %}
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </td>
+                                                <td><a href="{{ act.file_path }}" class="btn btn-primary btn-sm" target="_blank">Открыть</a></td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="text-center text-muted">Нет пакетов актов</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getUserRole() {
+    return window.userRole || 0;
+}
+
+$(document).ready(function() {
+    $('.open-docx-btn').on('click', function() {
+        var packageId = $(this).data('package-id');
+        $('#docxModalLabel').text('Пакет актов: ' + packageId);
+        var docxUrl = '/package-docx/' + packageId + '/';
+        $('#docxFrame').attr('src', docxUrl);
+        $('#docxModal').modal('show');
+        
+        var role = getUserRole();
+        $('#docxModalFooter .sign-btn, #docxModalFooter .approve-btn, #docxModalFooter .reject-btn').hide();
+        if (role == 2) {
+            $('#docxModalFooter .sign-btn').show();
+        } else if (role == 3) {
+            $('#docxModalFooter .approve-btn, #docxModalFooter .reject-btn').show();
+        }
+    });
+    
+    $('#docxModal').on('hidden.bs.modal', function() {
+        $('#docxFrame').attr('src', '');
+    });
+});
+</script>
+
+<div class="modal fade" id="docxModal" tabindex="-1" aria-labelledby="docxModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="docxModalLabel">Пакет актов</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="height:80vh;">
+        <iframe id="docxFrame" src="" style="width:100%;height:100%;border:none;"></iframe>
+      </div>
+      <div class="modal-footer" id="docxModalFooter">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="button" class="btn btn-success sign-btn" style="display:none;">Подписать</button>
+        <button type="button" class="btn btn-primary approve-btn" style="display:none;">Согласовать</button>
+        <button type="button" class="btn btn-danger reject-btn" style="display:none;">Отклонить</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

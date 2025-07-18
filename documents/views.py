@@ -32,11 +32,6 @@ def role_required(roles):
 
 @login_required
 @role_required([1, 5, 2])  # Админ, Редактор, Подписант (только просмотр)
-def gph_list(request):
-    return render(request, 'documents/gph_list.html')
-
-@login_required
-@role_required([1, 5, 2])  # Админ, Редактор, Подписант (только просмотр)
 def acts_list(request):
     return render(request, 'documents/acts_list.html')
 
@@ -400,11 +395,6 @@ def gph_save(request):
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
 @login_required
-@role_required([1, 5, 2])  # Админ, редактор, подписант (только просмотр)
-def act_list(request):
-    return render(request, 'documents/act_list.html')
-
-@login_required
 @role_required([1, 5])  # Только Админ и Редактор могут скачивать акты
 def act_download(request):
     """Скачивание акта в формате DOCX с подстановкой данных"""
@@ -766,10 +756,16 @@ def add_act_to_package(request):
                 'full_name': signer.full_name,
                 'status': 'ожидание'
             })
+            # Считаем сумму с учётом НДС, если отмечено
             try:
                 quantity = float(data['quantity']) if data['quantity'] else 0
                 unit_price = float(data['unit_price']) if data['unit_price'] else 0
-                amount = f"{quantity * unit_price:.2f}" if quantity > 0 and unit_price > 0 else "0.00"
+                amount_calc = quantity * unit_price
+                if data.get('vat_included'):
+                    amount_vat = amount_calc * 1.12
+                    amount = f"{amount_calc:.2f} (с НДС: {amount_vat:.2f})"
+                else:
+                    amount = f"{amount_calc:.2f}"
             except (ValueError, ZeroDivisionError):
                 amount = "0.00"
             document = ActDocument.objects.create(

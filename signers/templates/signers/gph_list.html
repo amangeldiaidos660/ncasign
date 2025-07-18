@@ -1,0 +1,60 @@
+{% extends 'signers/base_signers.html' %}
+
+{% block signers_title %}ГПХ договоры - ncasign{% endblock %}
+
+{% block signers_content %}
+<div class="row">
+    <div class="col-12 position-relative py-5">
+        <a href="{% url 'documents:gph_create' %}" class="btn btn-primary position-absolute top-0 start-0 m-3">
+            <i class="fas fa-file-contract me-2"></i>Создать ГПХ
+        </a>
+        {% if gph_docs %}
+        <div class="table-responsive mt-5">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Дата создания</th>
+                        <th>Исполнитель</th>
+                        <th>Статус</th>
+                        <th>Документ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in gph_docs %}
+                    <tr>
+                        <td>{{ doc.created_at|date:'d.m.Y' }}</td>
+                        <td>{{ doc.full_name }} ({{ doc.user.username }})</td>
+                        <td>
+                            <ul style="list-style: disc inside; padding-left: 0; margin-bottom: 0;">
+                                {% for action in doc.actions %}
+                                <li style="margin-bottom: 6px;">
+                                    <span style="font-size: 0.95em; color: #333;">{{ action.full_name }}</span>
+                                    {% if action.status == 'ожидание' %}
+                                        <span style="background:#ffc107;color:#212529;padding:2px 10px;border-radius:12px;font-size:0.82em;">ожидание</span>
+                                    {% elif action.status == 'согласовано' or action.status == 'подписано' %}
+                                        <span style="background:#28a745;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                    {% elif action.status == 'отклонено' %}
+                                        <span style="background:#dc3545;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">отклонено</span>
+                                    {% else %}
+                                        <span style="background:#6c757d;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td><a href="{{ doc.file_path }}" class="btn btn-primary" target="_blank">Открыть</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center">
+            <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted mt-4">ГПХ договоры не найдены</h5>
+            <p class="text-muted">Пока пусто</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

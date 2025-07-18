@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Документ</title>
+    <style>
+        body {
+            background: #fff;
+            font-family: Calibri, Arial, sans-serif;
+            font-size: 12pt;
+            margin: 2.5cm 2cm 2.5cm 2cm;
+            width: 29.7cm;
+            height: 21cm;
+            box-sizing: border-box;
+        }
+        .word-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5cm;
+        }
+        .word-table th, .word-table td {
+            border: 1px solid #222;
+            padding: 6px 4px;
+            font-size: 11pt;
+            vertical-align: middle;
+        }
+        .word-table th {
+            font-weight: bold;
+            background: #fff;
+        }
+        .text-left {
+            text-align: left;
+        }
+        .executor-col {
+            max-width: 120px;
+            word-break: break-word;
+        }
+        .description-col {
+            max-width: 150px;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <table class="word-table">
+        <thead>
+            <tr>
+                <th>№ акта</th>
+                <th>Дата</th>
+                <th>Договор</th>
+                <th class="executor-col">Исполнитель</th>
+                <th class="description-col">Наименование</th>
+                <th>Кол-во</th>
+                <th>Цена</th>
+                <th>Стоимость</th>
+                <th>С НДС</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for act in acts %}
+            <tr>
+                <td>{{ act.act_id }}</td>
+                <td>{{ act.date }}</td>
+                <td>{{ act.gph_id }}</td>
+                <td class="text-left executor-col">{{ act.executor }}</td>
+                <td class="text-left description-col">{{ act.description }}</td>
+                <td>{{ act.quantity }}</td>
+                <td>{{ act.unit_price }}</td>
+                <td>{{ act.amount }}</td>
+                <td>{{ act.nds_amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> 

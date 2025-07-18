@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ncasign',
     'documents',
+    'signers',
 ]
 
 MIDDLEWARE = [
@@ -134,6 +135,8 @@ DROPBOX_APP_SECRET = 'aohqduhcn7sknru'
 DROPBOX_REFRESH_TOKEN = 'VyivhetD6MgAAAAAAAAAAQj-D_H_bArVWbn3m45oNTCwVuxWfuL1HKKGjj1QtVPS'
 
 "https://www.dropbox.com/oauth2/authorize?client_id=htytb26oqllts8e&token_access_type=offline&response_type=code"
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 
 

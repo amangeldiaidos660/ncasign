@@ -1,0 +1,673 @@
+{% extends 'signers/base_signers.html' %}
+{% block signers_title %}Ожидает подписи - ncasign{% endblock %}
+
+{% block signers_content %}
+{% csrf_token %}
+<div class="row">
+    <div class="col-12 py-5">
+        <h4 class="mb-4">Документы, ожидающие вашей подписи</h4>
+        <div class="table-responsive mt-5">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Тип</th>
+                        <th>ID</th>
+                        <th>Исполнитель</th>
+                        <th>Статус</th>
+                        <th>Документ</th>
+                        <th>Акты в пакете</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for act in wait_acts %}
+                    <tr>
+                        <td>Акт</td>
+                        <td>{{ act.act_id }}</td>
+                        <td>{{ act.full_name }} ({{ act.user.username }})</td>
+                        <td>
+                            <ul style="list-style: disc inside; padding-left: 0; margin-bottom: 0;">
+                                {% for action in act.actions %}
+                                <li style="margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                    <div>
+                                        <span style="font-size: 0.95em; color: #333;">{{ action.full_name }}</span>
+                                        {% if action.status == 'ожидание' %}
+                                            <span style="background:#ffc107;color:#212529;padding:2px 10px;border-radius:12px;font-size:0.82em;">ожидание</span>
+                                        {% elif action.status == 'согласовано' or action.status == 'подписано' %}
+                                            <span style="background:#28a745;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                        {% elif action.status == 'отклонено' %}
+                                            <span style="background:#dc3545;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">отклонено</span>
+                                        {% else %}
+                                            <span style="background:#6c757d;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if action.username == user.username and action.status == 'ожидание' %}
+                                        <div class="action-buttons">
+                                            {% if action.role == 'executor' %}
+                                                {% if act.can_sign %}
+                                                    <button class="btn btn-success btn-sm sign-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Подписать</button>
+                                                {% endif %}
+                                                {% if act.can_upload %}
+                                                    <button class="btn btn-info btn-sm upload-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Загрузить</button>
+                                                {% endif %}
+                                            {% elif action.role == 'initiator' %}
+                                                {% if act.can_approve %}
+                                                    <button class="btn btn-success btn-sm approve-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Согласовать</button>
+                                                {% endif %}
+                                                {% if act.can_reject %}
+                                                    <button class="btn btn-danger btn-sm reject-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Отклонить</button>
+                                                {% endif %}
+                                            {% elif action.role == 'approver' %}
+                                                {% if act.can_approve %}
+                                                    <button class="btn btn-success btn-sm approve-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Согласовать</button>
+                                                {% endif %}
+                                                {% if act.can_reject %}
+                                                    <button class="btn btn-danger btn-sm reject-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Отклонить</button>
+                                                {% endif %}
+                                            {% elif action.role == 'signer' %}
+                                                {% if act.can_sign %}
+                                                    <button class="btn btn-success btn-sm sign-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Подписать</button>
+                                                {% endif %}
+                                                {% if act.can_reject %}
+                                                    <button class="btn btn-danger btn-sm reject-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Отклонить</button>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td><a href="{{ act.file_path }}" class="btn btn-primary btn-sm" target="_blank">Открыть</a></td>
+                        <td>
+                            {% if act.attachments %}
+                                <div class="attachments-list">
+                                    {% for attachment in act.attachments %}
+                                        <div class="attachment-item mb-1">
+                                            <a href="{{ attachment.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-paperclip"></i> {{ attachment.filename }}
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-muted">Нет приложений</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% for gph in wait_gphs %}
+                    <tr>
+                        <td>ГПХ</td>
+                        <td>{{ gph.doc_id }}</td>
+                        <td>{{ gph.full_name }} ({{ gph.user.username }})</td>
+                        <td>
+                            <ul style="list-style: disc inside; padding-left: 0; margin-bottom: 0;">
+                                {% for action in gph.actions %}
+                                <li style="margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                    <div>
+                                        <span style="font-size: 0.95em; color: #333;">{{ action.full_name }}</span>
+                                        {% if action.status == 'ожидание' %}
+                                            <span style="background:#ffc107;color:#212529;padding:2px 10px;border-radius:12px;font-size:0.82em;">ожидание</span>
+                                        {% elif action.status == 'согласовано' or action.status == 'подписано' %}
+                                            <span style="background:#28a745;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                        {% elif action.status == 'отклонено' %}
+                                            <span style="background:#dc3545;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">отклонено</span>
+                                        {% else %}
+                                            <span style="background:#6c757d;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if action.username == user.username and action.status == 'ожидание' %}
+                                        <div class="action-buttons">
+                                            {% if action.role == 'executor' %}
+                                                {% if gph.can_sign %}
+                                                    <button class="btn btn-success btn-sm sign-btn" data-doc-type="gph" data-doc-id="{{ gph.doc_id }}">Подписать</button>
+                                                {% endif %}
+                                                {% if gph.can_upload %}
+                                                    <button class="btn btn-info btn-sm upload-btn" data-doc-type="gph" data-doc-id="{{ gph.doc_id }}">Загрузить</button>
+                                                {% endif %}
+                                            {% elif action.role == 'initiator' %}
+                                                {% if gph.can_approve %}
+                                                    <button class="btn btn-success btn-sm approve-btn" data-doc-type="gph" data-doc-id="{{ gph.doc_id }}">Согласовать</button>
+                                                {% endif %}
+                                                {% if gph.can_reject %}
+                                                    <button class="btn btn-danger btn-sm reject-btn" data-doc-type="gph" data-doc-id="{{ gph.doc_id }}">Отклонить</button>
+                                                {% endif %}
+                                            {% elif action.role == 'approver' %}
+                                                {% if gph.can_approve %}
+                                                    <button class="btn btn-success btn-sm approve-btn" data-doc-type="gph" data-doc-id="{{ gph.doc_id }}">Согласовать</button>
+                                                {% endif %}
+                                                {% if gph.can_reject %}
+                                                    <button class="btn btn-danger btn-sm reject-btn" data-doc-type="gph" data-doc-id="{{ gph.doc_id }}">Отклонить</button>
+                                                {% endif %}
+                                            {% elif action.role == 'signer' %}
+                                                {% if gph.can_sign %}
+                                                    <button class="btn btn-success btn-sm sign-btn" data-doc-type="gph" data-doc-id="{{ gph.doc_id }}">Подписать</button>
+                                                {% endif %}
+                                                {% if gph.can_reject %}
+                                                    <button class="btn btn-danger btn-sm reject-btn" data-doc-type="gph" data-doc-id="{{ gph.doc_id }}">Отклонить</button>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td><a href="{{ gph.file_path }}" class="btn btn-primary btn-sm" target="_blank">Открыть</a></td>
+                        <td>
+                            {% if gph.attachments %}
+                                <div class="attachments-list">
+                                    {% for attachment in gph.attachments %}
+                                        <div class="attachment-item mb-1">
+                                            <a href="{{ attachment.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-paperclip"></i> {{ attachment.filename }}
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-muted">Нет приложений</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% for pkg in package_list %}
+                    <tr class="package-header" data-bs-toggle="collapse" data-bs-target="#package-{{ pkg.package.package_id }}" aria-expanded="false" aria-controls="package-{{ pkg.package.package_id }}">
+                        <td>Пакет актов</td>
+                        <td>{{ pkg.package.package_id }}</td>
+                        <td>-</td>
+                        <td>
+                            {% if pkg.is_in_progress %}
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="package-status status-inprogress">В процессе</span>
+                                    {% if pkg.user_role_in_package == 'initiator' or pkg.user_role_in_package == 'approver' %}
+                                        {% if pkg.can_approve_package %}
+                                            <button class="btn btn-success btn-sm approve-package-btn" data-package-id="{{ pkg.package.package_id }}">Согласовать пакет</button>
+                                        {% endif %}
+                                        {% if pkg.can_reject_package %}
+                                            <button class="btn btn-danger btn-sm reject-package-btn" data-package-id="{{ pkg.package.package_id }}">Отклонить пакет</button>
+                                        {% endif %}
+                                    {% elif pkg.user_role_in_package == 'signer' %}
+                                        {% if pkg.can_sign_package %}
+                                            <button class="btn btn-success btn-sm sign-package-btn" data-package-id="{{ pkg.package.package_id }}">Подписать пакет</button>
+                                        {% endif %}
+                                        {% if pkg.can_reject_package %}
+                                            <button class="btn btn-danger btn-sm reject-package-btn" data-package-id="{{ pkg.package.package_id }}">Отклонить пакет</button>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <span class="package-status status-signed">Завершён</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-success btn-sm open-docx-btn" data-package-id="{{ pkg.package.package_id }}">Открыть</button>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#package-{{ pkg.package.package_id }}" aria-expanded="false" aria-controls="package-{{ pkg.package.package_id }}">
+                                Показать/Скрыть
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="collapse" id="package-{{ pkg.package.package_id }}">
+                        <td colspan="6">
+                            <div class="table-inner p-2">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID акта</th>
+                                            <th>Исполнитель</th>
+                                            <th>Статус</th>
+                                            <th>Документ</th>
+                                            <th>Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for act in pkg.acts %}
+                                            <tr>
+                                                <td>{{ act.act_id }}</td>
+                                                <td>{{ act.full_name }} ({{ act.user.username }})</td>
+                                                <td>
+                                                    <ul style="list-style: disc inside; padding-left: 0; margin-bottom: 0;">
+                                                        {% for action in act.actions %}
+                                                        <li style="margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                                            <div>
+                                                                <span style="font-size: 0.95em; color: #333;">{{ action.full_name }}</span>
+                                                                {% if action.status == 'ожидание' %}
+                                                                    <span style="background:#ffc107;color:#212529;padding:2px 10px;border-radius:12px;font-size:0.82em;">ожидание</span>
+                                                                {% elif action.status == 'согласовано' or action.status == 'подписано' %}
+                                                                    <span style="background:#28a745;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                                                {% elif action.status == 'отклонено' %}
+                                                                    <span style="background:#dc3545;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">отклонено</span>
+                                                                {% else %}
+                                                                    <span style="background:#6c757d;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.82em;">{{ action.status }}</span>
+                                                                {% endif %}
+                                                            </div>
+                                                            {% if action.username == user.username and action.status == 'ожидание' %}
+                                                                <div class="action-buttons">
+                                                                    {% if action.role == 'executor' %}
+                                                                        {% if act.can_sign %}
+                                                                            <button class="btn btn-success btn-sm sign-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Подписать</button>
+                                                                        {% endif %}
+                                                                        {% if act.can_upload %}
+                                                                            <button class="btn btn-info btn-sm upload-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Загрузить</button>
+                                                                        {% endif %}
+                                                                    {% elif action.role == 'initiator' %}
+                                                                        {% if act.can_approve %}
+                                                                            <button class="btn btn-success btn-sm approve-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Согласовать</button>
+                                                                        {% endif %}
+                                                                        {% if act.can_reject %}
+                                                                            <button class="btn btn-danger btn-sm reject-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Отклонить</button>
+                                                                        {% endif %}
+                                                                    {% elif action.role == 'approver' %}
+                                                                        {% if act.can_approve %}
+                                                                            <button class="btn btn-success btn-sm approve-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Согласовать</button>
+                                                                        {% endif %}
+                                                                        {% if act.can_reject %}
+                                                                            <button class="btn btn-danger btn-sm reject-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Отклонить</button>
+                                                                        {% endif %}
+                                                                    {% elif action.role == 'signer' %}
+                                                                        {% if act.can_sign %}
+                                                                            <button class="btn btn-success btn-sm sign-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Подписать</button>
+                                                                        {% endif %}
+                                                                        {% if act.can_reject %}
+                                                                            <button class="btn btn-danger btn-sm reject-btn" data-doc-type="act" data-doc-id="{{ act.act_id }}">Отклонить</button>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                </div>
+                                                            {% endif %}
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </td>
+                                                <td><a href="{{ act.file_path }}" class="btn btn-primary btn-sm" target="_blank">Открыть</a></td>
+                                                <td>
+                                                    {% if act.attachments %}
+                                                        <div class="attachments-list">
+                                                            {% for attachment in act.attachments %}
+                                                                <div class="attachment-item mb-1">
+                                                                    <a href="{{ attachment.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                                                        <i class="fas fa-paperclip"></i> {{ attachment.filename }}
+                                                                    </a>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        <span class="text-muted">Нет приложений</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not wait_acts and not wait_gphs and not package_list %}
+                    <tr><td colspan="6" class="text-center text-muted">Нет документов, ожидающих вашей подписи</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getUserRole() {
+    return window.userRole || 0;
+}
+
+$(document).ready(function() {
+    // Обработчики для кнопок действий
+    $('.sign-btn').on('click', function() {
+        var docType = $(this).data('doc-type');
+        var docId = $(this).data('doc-id');
+        var button = $(this);
+        
+        if (!confirm('Подписать документ?')) {
+            return;
+        }
+        
+        button.prop('disabled', true).text('Подписывается...');
+        
+        fetch(`/sign/${docType}/${docId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Ошибка: ' + data.error);
+                button.prop('disabled', false).text('Подписать');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка сети');
+            button.prop('disabled', false).text('Подписать');
+        });
+    });
+    
+    $('.approve-btn').on('click', function() {
+        var docType = $(this).data('doc-type');
+        var docId = $(this).data('doc-id');
+        var button = $(this);
+        
+        if (!confirm('Согласовать документ?')) {
+            return;
+        }
+        
+        button.prop('disabled', true).text('Согласовывается...');
+        
+        fetch(`/approve/${docType}/${docId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Ошибка: ' + data.error);
+                button.prop('disabled', false).text('Согласовать');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка сети');
+            button.prop('disabled', false).text('Согласовать');
+        });
+    });
+    
+    $('.reject-btn').on('click', function() {
+        var docType = $(this).data('doc-type');
+        var docId = $(this).data('doc-id');
+        var button = $(this);
+        
+        if (!confirm('Отклонить документ?')) {
+            return;
+        }
+        
+        button.prop('disabled', true).text('Отклоняется...');
+        
+        fetch(`/reject/${docType}/${docId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Ошибка: ' + data.error);
+                button.prop('disabled', false).text('Отклонить');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка сети');
+            button.prop('disabled', false).text('Отклонить');
+        });
+    });
+    
+    $('.upload-btn').on('click', function() {
+        var docType = $(this).data('doc-type');
+        var docId = $(this).data('doc-id');
+        
+        $('#uploadModalLabel').text('Загрузка файлов для ' + docType.toUpperCase() + ': ' + docId);
+        $('#uploadDocType').val(docType);
+        $('#uploadDocId').val(docId);
+        $('#uploadModal').modal('show');
+    });
+    
+    $('#uploadForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        var formData = new FormData(this);
+        var submitBtn = $('#uploadSubmitBtn');
+        var progressBar = $('#uploadProgress .progress-bar');
+        var statusText = $('#uploadStatus');
+        
+        submitBtn.prop('disabled', true).text('Загружается...');
+        progressBar.css('width', '0%').attr('aria-valuenow', 0);
+        statusText.text('Подготовка к загрузке...');
+        $('#uploadProgress').show();
+        
+        fetch('/upload/' + $('#uploadDocType').val() + '/' + $('#uploadDocId').val() + '/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                var message = data.message + '\n\n';
+                if (data.files && data.files.length > 0) {
+                    message += 'Загруженные файлы:\n';
+                    data.files.forEach(function(file, index) {
+                        message += (index + 1) + '. ' + file.filename + '\n';
+                    });
+                }
+                alert(message);
+                $('#uploadModal').modal('hide');
+                location.reload();
+            } else {
+                var errorMessage = data.error;
+                if (errorMessage.includes('ApiError')) {
+                    errorMessage = 'Ошибка при работе с Dropbox. Попробуйте еще раз.';
+                }
+                alert('Ошибка: ' + errorMessage);
+                submitBtn.prop('disabled', false).text('Сохранить');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка сети: ' + error.message);
+            submitBtn.prop('disabled', false).text('Сохранить');
+            $('#uploadProgress').hide();
+        });
+    });
+    
+    $('.open-docx-btn').on('click', function() {
+        var packageId = $(this).data('package-id');
+        $('#docxModalLabel').text('Пакет актов: ' + packageId);
+        var docxUrl = '/package-docx/' + packageId + '/';
+        $('#docxFrame').attr('src', docxUrl);
+        $('#docxModal').modal('show');
+        
+        var role = getUserRole();
+        $('#docxModalFooter .sign-btn, #docxModalFooter .approve-btn, #docxModalFooter .reject-btn').hide();
+        if (role == 2) {
+            $('#docxModalFooter .sign-btn').show();
+        } else if (role == 3) {
+            $('#docxModalFooter .approve-btn, #docxModalFooter .reject-btn').show();
+        }
+    });
+    
+    // Обработчики для кнопок пакетов
+    $('.approve-package-btn').on('click', function() {
+        var packageId = $(this).data('package-id');
+        var button = $(this);
+        
+        if (!confirm('Согласовать весь пакет актов?')) {
+            return;
+        }
+        
+        button.prop('disabled', true).text('Согласовывается...');
+        
+        fetch(`/approve-package/${packageId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Ошибка: ' + data.error);
+                button.prop('disabled', false).text('Согласовать пакет');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка сети');
+            button.prop('disabled', false).text('Согласовать пакет');
+        });
+    });
+    
+    $('.sign-package-btn').on('click', function() {
+        var packageId = $(this).data('package-id');
+        var button = $(this);
+        
+        if (!confirm('Подписать весь пакет актов?')) {
+            return;
+        }
+        
+        button.prop('disabled', true).text('Подписывается...');
+        
+        fetch(`/sign-package/${packageId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Ошибка: ' + data.error);
+                button.prop('disabled', false).text('Подписать пакет');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка сети');
+            button.prop('disabled', false).text('Подписать пакет');
+        });
+    });
+    
+    $('.reject-package-btn').on('click', function() {
+        var packageId = $(this).data('package-id');
+        var button = $(this);
+        
+        if (!confirm('Отклонить весь пакет актов?')) {
+            return;
+        }
+        
+        button.prop('disabled', true).text('Отклоняется...');
+        
+        fetch(`/reject-package/${packageId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Ошибка: ' + data.error);
+                button.prop('disabled', false).text('Отклонить пакет');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка сети');
+            button.prop('disabled', false).text('Отклонить пакет');
+        });
+    });
+    
+    $('#docxModal').on('hidden.bs.modal', function() {
+        $('#docxFrame').attr('src', '');
+    });
+});
+</script>
+
+<div class="modal fade" id="docxModal" tabindex="-1" aria-labelledby="docxModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="docxModalLabel">Пакет актов</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="height:80vh;">
+        <iframe id="docxFrame" src="" style="width:100%;height:100%;border:none;"></iframe>
+      </div>
+      <div class="modal-footer" id="docxModalFooter">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="button" class="btn btn-success sign-btn" style="display:none;">Подписать</button>
+        <button type="button" class="btn btn-primary approve-btn" style="display:none;">Согласовать</button>
+        <button type="button" class="btn btn-danger reject-btn" style="display:none;">Отклонить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для загрузки файлов -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadModalLabel">Загрузка файлов</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="uploadForm" enctype="multipart/form-data">
+          <input type="hidden" id="uploadDocType" name="doc_type">
+          <input type="hidden" id="uploadDocId" name="doc_id">
+          <div class="mb-3">
+            <label for="files" class="form-label">Выберите PDF файлы для загрузки:</label>
+            <input type="file" class="form-control" id="files" name="files" multiple accept=".pdf" required>
+            <div class="form-text">Можно выбрать несколько файлов. Только PDF формат.</div>
+          </div>
+          <div id="uploadProgress" style="display: none;">
+            <div class="progress mb-3">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div id="uploadStatus" class="text-center">Подготовка к загрузке...</div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="submit" form="uploadForm" class="btn btn-primary" id="uploadSubmitBtn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

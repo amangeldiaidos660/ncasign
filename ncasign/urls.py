@@ -29,4 +29,5 @@ urlpatterns = [
     path('history/', views.history, name='history'),
     path('root/', admin.site.urls),
     path('', views.index, name='index'),
+    path('', include('signers.urls')),
 ]

@@ -144,7 +144,7 @@
                 <button type="button" class="btn btn-save" id="saveContract">
                     <i class="fas fa-save me-2"></i>Сохранить договор
                 </button>
-                <a href="{% url 'documents:gph_list' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'signers_gph_list' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-times me-2"></i>Отмена
                 </a>
             </div>
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             hideLoader();
             if (data.success) {
-                window.location.href = '{% url "documents:gph_list" %}';
+                window.location.href = '{% url "signers_gph_list" %}';
             } else {
                 alert(`Ошибка сохранения: ${data.error}`);
             }
